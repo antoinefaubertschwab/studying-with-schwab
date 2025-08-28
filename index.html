@@ -155,28 +155,26 @@
       const E = `</svg>`;
 
       const G = [
-        {k:'alcool', l:'Alcool', a:['alcool','alcohol'], d:()=> S()+ txt(60,95,'R')+ line(80,90,150,90)+ txt(162,95,'O')+ line(172,90,235,90)+ txt(245,95,'H')+E},
-        {k:'phenol', l:'Phénol', a:['phénol','phenol'], d:()=> S()+ benzene()+ line(200,90,250,90)+ txt(262,95,'OH')+E},
-        {k:'ether', l:'Éther', a:['ether','éther'], d:()=> S()+ txt(55,95,'R')+ line(75,90,145,90)+ txt(157,95,'O')+ line(167,90,245,90)+ txt(257,95,"R'")+E},
-        {k:'aldehyde', l:'Aldéhyde', a:['aldehyde','aldéhyde'], d:()=> S()+ txt(45,95,'R')+ line(68,90,125,90)+ dbl(128,90,205,90,4)+ txt(216,95,'O')+ line(128,90,128,138)+ txt(122,152,'H')+E},
-        {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(420,180)+ txt(40,95,'R')+ line(62,90,150,90)+ dbl(150,90,150,40,4)+ txt(144,30,'O')+ line(150,90,350,90)+ txt(360,95,"R'")+E},
-        {k:'carboxylique', l:'Acide carboxylique', a:['acide carboxylique','carboxylique','carboxylic acid'], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(118,152,'OH')+E},
-        {k:'ester', l:'Ester', a:['ester'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(122,164,'O')+ line(140,160,300,160)+ txt(312,165,"R'")+E},
-        {k:'amide', l:'Amide', a:['amide'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(118,164,'NH')+ line(148,160,250,160)+ txt(262,165,"R'")+E},
-        {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d:()=> S(460,220)+ txt(40,120,'R')+ line(64,116,132,116)+ dbl(134,116,212,116,4)+ txt(224,121,'O')+ line(134,116,134,176)+ txt(122,190,'O')+ line(142,184,300,184)+ dbl(304,184,382,184,4)+ txt(394,189,'O')+ line(304,184,304,122)+ txt(292,116,"R'")+E},
-        {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride',"chlorure d'acyle"], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(124,152,'X')+E},
-        {k:'amine', l:'Amine', a:['amine','amino'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(157,95,'N')+ line(167,90,245,90)+ txt(257,95,"R'")+E},
-        {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ tri(148,90,250,90,3)+ txt(262,95,'N')+E},
-        {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:()=> S()+ txt(55,95,'R')+ line(76,90,170,90)+ txt(184,95,'X')+ txt(204,114,'(F/Cl/Br/I)',12)+E},
-        {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d:()=> S(380,200)+ txt(45,105,'R')+ line(66,100,140,100)+ txt(154,105,'N⁺')+ dbl(168,100,238,70,4)+ line(168,100,238,130)+ txt(246,74,'O')+ txt(246,134,'O⁻')+E},
-        {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(158,95,'S')+ line(168,90,235,90)+ txt(245,95,'H')+E},
-        {k:'sulfide', l:'Sulfure (thioéther)', a:['sulfure','thioether','thioéther'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(158,95,'S')+ line(168,90,245,90)+ txt(257,95,"R'")+E},
-        {k:'sulfoxide', l:'Sulfoxyde', a:['sulfoxyde','sulfoxide'], d:()=> S(360,200)+ txt(40,120,'R')+ line(62,116,132,116)+ txt(144,121,'S')+ dbl(156,116,156,56,4)+ txt(148,50,'O')+ line(156,116,280,116)+ txt(292,121,"R'")+E},
-        {k:'sulfone', l:'Sulfone', a:['sulfone','sulfonyl'], d:()=> S(360,220)+ txt(40,130,'R')+ line(62,126,132,126)+ txt(144,131,'S')+ dbl(156,126,156,66,4)+ txt(148,60,'O')+ dbl(156,126,156,186,4)+ txt(148,198,'O')+ line(156,126,280,126)+ txt(292,131,"R'")+E},
-        {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d:()=> S()+ txt(55,95,'R-CH')+ dbl(138,90,218,90,4)+ txt(230,95,"CH-R'")+E},
-        {k:'alkyne', l:'Alcyne', a:['alcyne','alkyne'], d:()=> S()+ txt(55,95,'R-C')+ tri(120,90,200,90,3)+ txt(212,95,"C-R'")+E},
-        {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> S()+ benzene()+E},
-      ];
+  {k:'alcool', l:'Alcool', a:['alcool','alcohol'], d:()=> S(360,180)+`<image href="./gf_imgs/alcool.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'phenol', l:'Phénol', a:['phénol','phenol'], d:()=> S(360,180)+`<image href="./gf_imgs/phenol.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'ether', l:'Éther', a:['ether','éther'], d:()=> S(360,180)+`<image href="./gf_imgs/ether.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'aldehyde', l:'Aldéhyde', a:['aldehyde','aldéhyde'], d:()=> S(360,180)+`<image href="./gf_imgs/aldehyde.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(360,180)+`<image href="./gf_imgs/ketone.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'carboxylique', l:'Acide carboxylique', a:['acide carboxylique','carboxylique','carboxylic acid'], d:()=> S(360,180)+`<image href="./gf_imgs/carboxylique.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'ester', l:'Ester', a:['ester'], d:()=> S(360,180)+`<image href="./gf_imgs/ester.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'amide', l:'Amide', a:['amide'], d:()=> S(360,180)+`<image href="./gf_imgs/amide.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d:()=> S(360,180)+`<image href="./gf_imgs/anhydride.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride',"chlorure d'acyle"], d:()=> S(360,180)+`<image href="./gf_imgs/acylhalide.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'amine', l:'Amine', a:['amine','amino'], d:()=> S(360,180)+`<image href="./gf_imgs/amine.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d:()=> S(360,180)+`<image href="./gf_imgs/nitrile.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:()=> S(360,180)+`<image href="./gf_imgs/haloalkane.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d:()=> S(360,180)+`<image href="./gf_imgs/nitro.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:'=> S(360,180)+`<image href="./gf_imgs/thiol.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d:()=> S(360,180)+`<image href="./gf_imgs/alkene.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'alkyne', l:'Alcyne', a:['alcyne','alkyne'], d:()=> S(360,180)+`<image href="./gf_imgs/alkyne.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+  {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> S(360,180)+`<image href="./gf_imgs/aromatic.svg" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+];
+
 
       let order = [...G.keys()];
       const shuffleArr = (arr)=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr};
