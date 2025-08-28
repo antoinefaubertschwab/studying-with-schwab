@@ -16,6 +16,8 @@
     .logo svg{opacity:.9}
     h1{font-size:22px;margin:0}
     .sub{color:var(--muted);font-size:13px;margin:0}
+
+    /* Home grid */
     .apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:10px}
     .app{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;cursor:pointer;transition:.2s transform,.2s border-color,.2s box-shadow}
     .app:hover{transform:translateY(-2px);border-color:#2f3240;box-shadow:0 6px 24px rgba(0,0,0,.25)}
@@ -25,8 +27,12 @@
     .app .meta .title{font-weight:700;letter-spacing:.2px}
     .app .meta .desc{color:var(--muted);font-size:13px;margin-top:2px}
     .pill{display:inline-flex;align-items:center;gap:8px;background:#141720;border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:#d1d5db;font-size:12px}
+
+    /* Views */
     .view{display:none}
     .view.show{display:block}
+
+    /* Quiz inner UI */
     .row{display:flex;align-items:center;gap:12px;margin:12px 0}
     .btn{background:#fff;color:#111;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
     .btn:active{transform:translateY(1px)}
@@ -45,6 +51,8 @@
     .svgwrap{background:#0d0e11;border:1px solid var(--border);border-radius:14px;padding:16px}
     .answer{color:#c9ced6}
     .footer{margin-top:18px;color:#a3a6ad;font-size:12px}
+    .back{display:flex;align-items:center;gap:8px}
+    .back svg{opacity:.85}
   </style>
 </head>
 <body>
@@ -96,7 +104,10 @@
 
     <section id="gf" class="view">
       <div class="bar">
-        <button class="btn ghost" id="back-home" aria-label="Retour à l'accueil">⬅ Accueil</button>
+        <button class="btn ghost back" id="back-home" aria-label="Retour à l'accueil">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="#eaeaea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Accueil
+        </button>
         <div class="pill">Flashcards GF</div>
       </div>
 
@@ -126,7 +137,20 @@
   </div>
 
   <script>
-    const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'\-]/g,'').replace(/\s+/g,' ').trim();
+    // === Utils sans regex d'echappement ===
+    const norm = (s) => {
+      let t = s.toLowerCase().normalize('NFD');
+      let out = '';
+      for (let i = 0; i < t.length; i++) {
+        const code = t.charCodeAt(i);
+        if (code >= 0x0300 && code <= 0x036F) continue; // supprime diacritiques
+        out += t[i];
+      }
+      out = out.replaceAll('’','').replaceAll("'",'').replaceAll('-', ' ');
+      while (out.indexOf('  ') !== -1) out = out.replace('  ', ' ');
+      return out.trim();
+    };
+
     const shorten = (x1,y1,x2,y2,sh=6)=>{const dx=x2-x1,dy=y2-y1;const L=Math.hypot(dx,dy)||1;const ux=dx/L,uy=dy/L;return [x1+ux*sh,y1+uy*sh,x2-ux*sh,y2-uy*sh];};
     const perp = (dx,dy)=>{const L=Math.hypot(dx,dy)||1;return [-dy/L, dx/L];};
     const line = (x1,y1,x2,y2,w=2)=>{const [a,b,c,d]=shorten(x1,y1,x2,y2,6);return `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#eaeaea" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" shape-rendering="geometricPrecision"/>`;};
@@ -136,6 +160,8 @@
     const benzene = (cx=160,cy=90,r=38)=>{let pts=[];for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#eaeaea" stroke-width="2" vector-effect="non-scaling-stroke"/>`+`<circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#eaeaea" stroke-width="2" vector-effect="non-scaling-stroke"/>`};
     const S = (w=360,h=180)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
     const E = `</svg>`;
+
+    // === Cartes ===
     const G = [
       {k:'alcool', l:'Alcool', a:['alcool','alcohol'], d:()=> S()+ txt(60,95,'R')+ line(80,90,150,90)+ txt(162,95,'O')+ line(172,90,235,90)+ txt(245,95,'H')+E},
       {k:'phenol', l:'Phénol', a:['phénol','phenol'], d:()=> S()+ benzene()+ line(200,90,250,90)+ txt(262,95,'OH')+E},
@@ -144,7 +170,7 @@
       {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(380,180)+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,320,90)+ txt(330,95,"R'")+E},
       {k:'carboxylique', l:'Acide carboxylique', a:['acide carboxylique','carboxylique','carboxylic acid'], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(118,152,'OH')+E},
       {k:'ester', l:'Ester', a:['ester'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(122,164,'O')+ line(140,160,300,160)+ txt(312,165,"R'")+E},
-      {k:'amide', l:'Amide', a:['amide'], d:=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(118,164,'NH')+ line(148,160,250,160)+ txt(262,165,"R'")+E},
+      {k:'amide', l:'Amide', a:['amide'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(118,164,'NH')+ line(148,160,250,160)+ txt(262,165,"R'")+E},
       {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d:()=> S(460,220)+ txt(40,120,'R')+ line(64,116,132,116)+ dbl(134,116,212,116,4)+ txt(224,121,'O')+ line(134,116,134,176)+ txt(122,190,'O')+ line(142,184,300,184)+ dbl(304,184,382,184,4)+ txt(394,189,'O')+ line(304,184,304,122)+ txt(292,116,"R'")+E},
       {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride','chlorure d\'acyle'], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(124,152,'X')+E},
       {k:'amine', l:'Amine', a:['amine','amino'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(157,95,'N')+ line(167,90,245,90)+ txt(257,95,"R'")+E},
@@ -160,6 +186,7 @@
       {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> S()+ benzene()+E},
     ];
 
+    // === Quiz logic ===
     let order = [...G.keys()];
     const shuffleArr = (arr)=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr};
     order = shuffleArr(order);
@@ -171,19 +198,21 @@
     const checkAns = ()=>{const g = G[order[idx]];const a = norm($('input').value);const ok = [g.l, ...g.a].map(norm).some(x=>x===a);$('msg').className = 'msg ' + (ok? 'ok':'bad');$('msg').textContent = ok ? 'Correct.' : 'Incorrect.';if(ok) score++; else $('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
     const reveal = ()=>{const g = G[order[idx]];$('msg').className = 'msg bad';$('msg').textContent = 'Révélé.';$('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
 
+    // === Buttons ===
     document.getElementById('check').addEventListener('click', checkAns);
     document.getElementById('reveal').addEventListener('click', reveal);
     document.getElementById('next').addEventListener('click', ()=>{ idx = (idx+1) % G.length; render(); });
     document.getElementById('shuffle').addEventListener('click', ()=>{ order = shuffleArr([...G.keys()]); idx = 0; score = 0; render(); });
     document.getElementById('input').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ checkAns(); }});
 
-    // Navigation Home <-> Module
+    // === View switching Home <-> Module ===
     const home = document.getElementById('home');
     const gf = document.getElementById('gf');
     const crumbs = document.getElementById('breadcrumbs');
-    document.getElementById('open-gf').addEventListener('click', ()=>{home.classList.remove('show');gf.classList.add('show');crumbs.textContent='Flashcards GF';});
-    document.getElementById('back-home').addEventListener('click', ()=>{gf.classList.remove('show');home.classList.add('show');crumbs.textContent='Accueil';});
+    document.getElementById('open-gf').addEventListener('click', ()=>{home.classList.remove('show'); gf.classList.add('show'); crumbs.textContent='Flashcards GF';});
+    document.getElementById('back-home').addEventListener('click', ()=>{gf.classList.remove('show'); home.classList.add('show'); crumbs.textContent='Accueil';});
 
+    // init first card
     render();
   </script>
 </body>
