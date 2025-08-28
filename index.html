@@ -2,145 +2,122 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex,nofollow" />
-  <meta http-equiv="referrer" content="no-referrer" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
-  <title>Page privée — Accès par mot de passe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Groupements fonctionnels — Quiz (dessins nets)</title>
   <style>
-    :root{--bg:#fff;--fg:#0b0b0c;--muted:#6b7280;--ok:#0ea5e9;--warn:#ef4444}
-    *{box-sizing:border-box}
+    :root{--bg:#0b0b0c;--card:#111214;--muted:#b3b3b3;--fg:#f2f2f2;--ok:#0ac95b;--bad:#ff4d4f;--accent:#e5e7eb;--border:#24262a}
     html,body{height:100%}
-    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:var(--bg);color:var(--fg)}
-    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:32px}
-    .card{width:min(880px,100%);border:1px solid #e5e7eb;border-radius:20px;padding:28px 26px;box-shadow:0 10px 35px rgba(0,0,0,.06)}
-    .title{font-size:28px;font-weight:800;letter-spacing:.2px;margin:0 0 6px}
-    .muted{color:var(--muted);margin:0 0 18px}
-    .pill{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #e5e7eb;font-size:12px}
-    .ok{color:var(--ok);border-color:rgba(14,165,233,.35)}
-    .warn{color:var(--warn);border-color:rgba(239,68,68,.35)}
-    .grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
-    pre{overflow:auto;background:#0b0b0c;color:#f5f5f5;border-radius:12px;padding:14px;margin:0}
-    code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
-    .btn{cursor:pointer;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;background:#fafafa}
+    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    .wrap{max-width:880px;margin:32px auto;padding:0 16px}
+    h1{font-size:28px;margin:0 0 4px}
+    .sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+    .row{display:flex;align-items:center;gap:12px;margin:12px 0}
+    .btn{background:#fff;color:#111;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
     .btn:active{transform:translateY(1px)}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .small{font-size:12px}
-    .hidden{display:none}
-    .input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb}
-    .error{color:var(--warn);font-size:14px;margin-top:8px}
-    .right{display:flex;justify-content:flex-end}
+    .btn.alt{background:#23252a;color:#eaeaea}
+    .pill{color:#d1d5db;background:#17181b;border:1px solid var(--border);padding:6px 10px;border-radius:12px;font-size:12px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+    .flex{display:flex;gap:12px;align-items:center}
+    .grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
+    input[type=text]{width:100%;background:#0e0f12;color:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 14px;outline:none}
+    input[type=text]:focus{border-color:#3a3f46}
+    .hint{color:var(--muted);font-size:12px}
+    .ok{background:#0f2a1c;color:#3bff98;border:1px solid #154c33}
+    .bad{background:#2a1414;color:#ffb3b3;border:1px solid #4c1515}
+    .msg{margin-top:10px;border-radius:12px;padding:10px 12px;font-weight:600}
+    svg{width:100%;height:auto;display:block}
+    .svgwrap{background:#0d0e11;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .answer{color:#c9ced6}
+    .footer{margin-top:18px;color:#a3a6ad;font-size:12px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <h1 class="title">Page privée</h1>
-      <p class="muted">Accès protégé par <strong>mot de passe</strong>. Rien n'est exposé tant que tu n'es pas connecté.</p>
+    <h1>Flashcards inverses — Groupements fonctionnels (21)</h1>
+    <div class="sub">Tape le nom du groupe (FR/EN, accents ignorés). Mélange, réponds, révèle si nécessaire.</div>
 
-      <!-- ÉTAT VERROUILLÉ -->
-      <div id="login">
-        <span class="pill warn">Verrouillée</span>
-        <p class="muted">Entre le mot de passe pour afficher le contenu.</p>
-        <div class="grid">
-          <div>
-            <label for="pw" class="small muted">Mot de passe</label>
-            <input id="pw" type="password" class="input" placeholder="••••••••" autocomplete="current-password"/>
-            <div id="err" class="error hidden">Mot de passe invalide.</div>
-          </div>
-          <div class="row">
-            <label class="small"><input type="checkbox" id="show"/> Afficher</label>
-            <div class="right" style="flex:1">
-              <button id="go" class="btn">Entrer</button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="row">
+      <button class="btn" id="shuffle">Mélanger</button>
+      <span class="pill" id="prog"></span>
+      <span class="pill" id="score"></span>
+    </div>
 
-      <!-- CONTENU PRIVÉ -->
-      <div id="content" class="hidden">
-        <span class="pill ok">Connecté</span>
-        <p class="muted">Tu as déverrouillé la page.</p>
-        <div class="grid">
-          <section>
-            <h2 style="margin:0 0 8px;font-size:20px">Ton contenu</h2>
-            <p>Remplace ce texte par ce que tu veux rendre privé (notes, images encodées en <code>data:</code>, instructions, etc.).</p>
-          </section>
-          <section>
-            <h3 style="margin:0 0 8px;font-size:16px">Actions</h3>
-            <div class="row">
-              <button id="logout" class="btn">Se déconnecter</button>
-            </div>
-          </section>
-        </div>
+    <div class="card svgwrap"><div id="svg"></div></div>
+
+    <div class="row grid">
+      <input type="text" id="input" placeholder="Ex. alcool, cétone, nitrile…" />
+      <div class="flex">
+        <button class="btn" id="check">Vérifier</button>
+        <button class="btn alt" id="reveal">Révéler</button>
+        <button class="btn" id="next">Suivant</button>
       </div>
     </div>
+
+    <div id="msg"></div>
+    <div class="footer" id="accepted"></div>
   </div>
 
   <script>
-    // ===== Paramètres =====
-    // SHA-256 du mot de passe choisi ("Maitre#9053")
-    const PASS_HASH = "dd6061cad289dadc1b54fc4df36110e0f99e828c33c19106e58da0f79ebcc6ac";
-    const FALLBACK_PLAIN = "Maitre#9053"; // utilisé uniquement si WebCrypto indisponible (ex: HTTP local) 
-    const STORAGE_KEY = "_private_logged";
+    // Normalisation des réponses
+    const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'\-]/g,'').replace(/\s+/g,' ').trim();
 
-    // ===== Utilitaires =====
-    const $ = (id) => document.getElementById(id);
-    const toHex = (buf) => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-    async function sha256(text){
-      const data = new TextEncoder().encode(text);
-      const hash = await crypto.subtle.digest("SHA-256", data);
-      return toHex(hash);
-    }
+    // Primitives SVG : parallèles propres + traits raccourcis aux jonctions
+    const shorten = (x1,y1,x2,y2,sh=6)=>{const dx=x2-x1,dy=y2-y1;const L=Math.hypot(dx,dy)||1;const ux=dx/L,uy=dy/L;return [x1+ux*sh,y1+uy*sh,x2-ux*sh,y2-uy*sh];};
+    const perp = (dx,dy)=>{const L=Math.hypot(dx,dy)||1;return [-dy/L, dx/L];};
 
-    function setState(authed){
-      $("login").classList.toggle("hidden", authed);
-      $("content").classList.toggle("hidden", !authed);
-    }
+    const line = (x1,y1,x2,y2,w=2)=>{const [a,b,c,d]=shorten(x1,y1,x2,y2,6);return `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#eaeaea" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" shape-rendering="geometricPrecision"/>`;};
+    const dbl = (x1,y1,x2,y2,g=4,w=2)=>{const dx=x2-x1,dy=y2-y1;const [nx,ny]=perp(dx,dy);const ox=nx*g,oy=ny*g;return line(x1+ox,y1+oy,x2+ox,y2+oy,w)+line(x1-ox,y1-oy,x2-ox,y2-oy,w)};
+    const tri = (x1,y1,x2,y2,g=3,w=2)=>{const dx=x2-x1,dy=y2-y1;const [nx,ny]=perp(dx,dy);const ox=nx*g,oy=ny*g;return line(x1+ox,y1+oy,x2+ox,y2+oy,w)+line(x1,y1,x2,y2,w)+line(x1-ox,y1-oy,x2-ox,y2-oy,w)};
+    const txt = (x,y,t,sz=16)=>`<text x="${x}" y="${y}" font-family="ui-sans-serif,system-ui" font-size="${sz}" fill="#eaeaea">${t}</text>`;
 
-    // Session persistante (onglet)
-    const already = sessionStorage.getItem(STORAGE_KEY) === "1";
-    setState(already);
+    const benzene = (cx=160,cy=90,r=38)=>{let pts=[];for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#eaeaea" stroke-width="2" vector-effect="non-scaling-stroke"/>`+`<circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#eaeaea" stroke-width="2" vector-effect="non-scaling-stroke"/>`};
 
-    // UI handlers
-    $("show").addEventListener("change", (e)=>{
-      $("pw").type = e.target.checked ? "text" : "password";
-    });
+    const S = (w=360,h=180)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+    const E = `</svg>`;
 
-    async function tryLogin(){
-      const val = $("pw").value || "";
-      let ok = false;
-      try {
-        if (window.crypto && window.crypto.subtle) {
-          const h = await sha256(val);
-          ok = (h === PASS_HASH);
-        } else {
-          ok = (val === FALLBACK_PLAIN);
-        }
-      } catch (e) {
-        ok = (val === FALLBACK_PLAIN);
-      }
-      if (ok){
-        sessionStorage.setItem(STORAGE_KEY, "1");
-        setState(true);
-        $("err").classList.add("hidden");
-        $("pw").value = "";
-      } else {
-        $("err").classList.remove("hidden");
-      }
-    }, document.title, window.location.pathname);
-      } else {
-        $("err").classList.remove("hidden");
-      }
-    }
+    // Cartes — coordonnées ajustées pour éviter les overlaps
+    const G = [
+      {k:'alcool', l:'Alcool', a:['alcool','alcohol'], d:()=> S()+ txt(60,95,'R')+ line(80,90,150,90)+ txt(162,95,'O')+ line(172,90,235,90)+ txt(245,95,'H')+E},
+      {k:'phenol', l:'Phénol', a:['phénol','phenol'], d:()=> S()+ benzene()+ line(200,90,250,90)+ txt(262,95,'OH')+E},
+      {k:'ether', l:'Éther', a:['ether','éther'], d:()=> S()+ txt(55,95,'R')+ line(75,90,145,90)+ txt(157,95,'O')+ line(167,90,245,90)+ txt(257,95,"R'")+E},
+      {k:'aldehyde', l:'Aldéhyde', a:['aldehyde','aldéhyde'], d:()=> S()+ txt(45,95,'R')+ line(68,90,125,90)+ dbl(128,90,205,90,4)+ txt(216,95,'O')+ line(128,90,128,138)+ txt(122,152,'H')+E},
+      {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(380,180)+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,320,90)+ txt(330,95,"R'")+E},
+      {k:'carboxylique', l:'Acide carboxylique', a:['acide carboxylique','carboxylique','carboxylic acid'], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(118,152,'OH')+E},
+      {k:'ester', l:'Ester', a:['ester'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(122,164,'O')+ line(140,160,300,160)+ txt(312,165,"R'")+E},
+      {k:'amide', l:'Amide', a:['amide'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(118,164,'NH')+ line(148,160,250,160)+ txt(262,165,"R'")+E},
+      {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d:()=> S(460,220)+ txt(40,120,'R')+ line(64,116,132,116)+ dbl(134,116,212,116,4)+ txt(224,121,'O')+ line(134,116,134,176)+ txt(122,190,'O')+ line(142,184,300,184)+ dbl(304,184,382,184,4)+ txt(394,189,'O')+ line(304,184,304,122)+ txt(292,116,"R'")+E},
+      {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride','chlorure d\'acyle'], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(124,152,'X')+E},
+      {k:'amine', l:'Amine', a:['amine','amino'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(157,95,'N')+ line(167,90,245,90)+ txt(257,95,"R'")+E},
+      {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ tri(148,90,250,90,3)+ txt(262,95,'N')+E},
+      {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:()=> S()+ txt(55,95,'R')+ line(76,90,170,90)+ txt(184,95,'X')+ txt(204,114,'(F/Cl/Br/I)',12)+E},
+      {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d:()=> S(380,200)+ txt(45,105,'R')+ line(66,100,140,100)+ txt(154,105,'N⁺')+ dbl(168,100,238,70,4)+ line(168,100,238,130)+ txt(246,74,'O')+ txt(246,134,'O⁻')+E},
+      {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(158,95,'S')+ line(168,90,235,90)+ txt(245,95,'H')+E},
+      {k:'sulfide', l:'Sulfure (thioéther)', a:['sulfure','thioether','thioéther'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(158,95,'S')+ line(168,90,245,90)+ txt(257,95,"R'")+E},
+      {k:'sulfoxide', l:'Sulfoxyde', a:['sulfoxyde','sulfoxide'], d:()=> S(360,200)+ txt(40,120,'R')+ line(62,116,132,116)+ txt(144,121,'S')+ dbl(156,116,156,56,4)+ txt(148,50,'O')+ line(156,116,280,116)+ txt(292,121,"R'")+E},
+      {k:'sulfone', l:'Sulfone', a:['sulfone','sulfonyl'], d:()=> S(360,220)+ txt(40,130,'R')+ line(62,126,132,126)+ txt(144,131,'S')+ dbl(156,126,156,66,4)+ txt(148,60,'O')+ dbl(156,126,156,186,4)+ txt(148,198,'O')+ line(156,126,280,126)+ txt(292,131,"R'")+E},
+      {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d:()=> S()+ txt(55,95,'R-CH')+ dbl(138,90,218,90,4)+ txt(230,95,"CH-R'")+E},
+      {k:'alkyne', l:'Alcyne', a:['alcyne','alkyne'], d:()=> S()+ txt(55,95,'R-C')+ tri(120,90,200,90,3)+ txt(212,95,"C-R'")+E},
+      {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> S()+ benzene()+E},
+    ];
 
-    $("go").addEventListener("click", tryLogin);
-    $("pw").addEventListener("keydown", (e)=>{ if(e.key === "Enter") tryLogin(); });
+    // Logique quiz
+    let order = [...G.keys()];
+    const shuffleArr = (arr)=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr};
+    order = shuffleArr(order);
 
-    $("logout").addEventListener("click", ()=>{
-      sessionStorage.removeItem(STORAGE_KEY);
-      setState(false);
-    });
+    let idx = 0, score = 0;
+    const $ = (id)=>document.getElementById(id);
+    const render = ()=>{const g = G[order[idx]];document.getElementById('svg').innerHTML = g.d();document.getElementById('prog').textContent = `${idx+1}/${G.length}`;document.getElementById('score').textContent = `Score : ${score}`;document.getElementById('msg').innerHTML = '';document.getElementById('accepted').innerHTML = '';document.getElementById('input').value = '';document.getElementById('input').focus();};
+    const checkAns = ()=>{const g = G[order[idx]];const a = norm(document.getElementById('input').value);const ok = [g.l, ...g.a].map(norm).some(x=>x===a);document.getElementById('msg').className = 'msg ' + (ok? 'ok':'bad');document.getElementById('msg').textContent = ok ? 'Correct.' : 'Incorrect.';if(ok) score++; else document.getElementById('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
+    const reveal = ()=>{const g = G[order[idx]];document.getElementById('msg').className = 'msg bad';document.getElementById('msg').textContent = 'Révélé.';document.getElementById('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
+
+    document.getElementById('check').addEventListener('click', checkAns);
+    document.getElementById('reveal').addEventListener('click', reveal);
+    document.getElementById('next').addEventListener('click', ()=>{ idx = (idx+1) % G.length; render(); });
+    document.getElementById('shuffle').addEventListener('click', ()=>{ order = shuffleArr([...G.keys()]); idx = 0; score = 0; render(); });
+    document.getElementById('input').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ checkAns(); }});
+
+    render();
   </script>
 </body>
 </html>
