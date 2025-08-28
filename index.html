@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow" />
+  <meta http-equiv="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+  <title>Page privée — Accès par mot de passe</title>
+  <style>
+    :root{--bg:#fff;--fg:#0b0b0c;--muted:#6b7280;--ok:#0ea5e9;--warn:#ef4444}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:var(--bg);color:var(--fg)}
+    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:32px}
+    .card{width:min(880px,100%);border:1px solid #e5e7eb;border-radius:20px;padding:28px 26px;box-shadow:0 10px 35px rgba(0,0,0,.06)}
+    .title{font-size:28px;font-weight:800;letter-spacing:.2px;margin:0 0 6px}
+    .muted{color:var(--muted);margin:0 0 18px}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #e5e7eb;font-size:12px}
+    .ok{color:var(--ok);border-color:rgba(14,165,233,.35)}
+    .warn{color:var(--warn);border-color:rgba(239,68,68,.35)}
+    .grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
+    pre{overflow:auto;background:#0b0b0c;color:#f5f5f5;border-radius:12px;padding:14px;margin:0}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+    .btn{cursor:pointer;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;background:#fafafa}
+    .btn:active{transform:translateY(1px)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .small{font-size:12px}
+    .hidden{display:none}
+    .input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb}
+    .error{color:var(--warn);font-size:14px;margin-top:8px}
+    .right{display:flex;justify-content:flex-end}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Page privée</h1>
+      <p class="muted">Accès protégé par <strong>mot de passe</strong>. Rien n'est exposé tant que tu n'es pas connecté.</p>
+
+      <!-- ÉTAT VERROUILLÉ -->
+      <div id="login">
+        <span class="pill warn">Verrouillée</span>
+        <p class="muted">Entre le mot de passe pour afficher le contenu.</p>
+        <div class="grid">
+          <div>
+            <label for="pw" class="small muted">Mot de passe</label>
+            <input id="pw" type="password" class="input" placeholder="••••••••" autocomplete="current-password"/>
+            <div id="err" class="error hidden">Mot de passe invalide.</div>
+          </div>
+          <div class="row">
+            <label class="small"><input type="checkbox" id="show"/> Afficher</label>
+            <div class="right" style="flex:1">
+              <button id="go" class="btn">Entrer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENU PRIVÉ -->
+      <div id="content" class="hidden">
+        <span class="pill ok">Connecté</span>
+        <p class="muted">Tu as déverrouillé la page.</p>
+        <div class="grid">
+          <section>
+            <h2 style="margin:0 0 8px;font-size:20px">Ton contenu</h2>
+            <p>Remplace ce texte par ce que tu veux rendre privé (notes, images encodées en <code>data:</code>, instructions, etc.).</p>
+          </section>
+          <section>
+            <h3 style="margin:0 0 8px;font-size:16px">Actions</h3>
+            <div class="row">
+              <button id="logout" class="btn">Se déconnecter</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Paramètres =====
+    // SHA-256 du mot de passe choisi ("Maitre#9053")
+    const PASS_HASH = "dd6061cad289dadc1b54fc4df36110e0f99e828c33c19106e58da0f79ebcc6ac";
+    const FALLBACK_PLAIN = "Maitre#9053"; // utilisé uniquement si WebCrypto indisponible (ex: HTTP local) 
+    const STORAGE_KEY = "_private_logged";
+
+    // ===== Utilitaires =====
+    const $ = (id) => document.getElementById(id);
+    const toHex = (buf) => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    async function sha256(text){
+      const data = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return toHex(hash);
+    }
+
+    function setState(authed){
+      $("login").classList.toggle("hidden", authed);
+      $("content").classList.toggle("hidden", !authed);
+    }
+
+    // Session persistante (onglet)
+    const already = sessionStorage.getItem(STORAGE_KEY) === "1";
+    setState(already);
+
+    // UI handlers
+    $("show").addEventListener("change", (e)=>{
+      $("pw").type = e.target.checked ? "text" : "password";
+    });
+
+    async function tryLogin(){
+      const val = $("pw").value || "";
+      let ok = false;
+      try {
+        if (window.crypto && window.crypto.subtle) {
+          const h = await sha256(val);
+          ok = (h === PASS_HASH);
+        } else {
+          ok = (val === FALLBACK_PLAIN);
+        }
+      } catch (e) {
+        ok = (val === FALLBACK_PLAIN);
+      }
+      if (ok){
+        sessionStorage.setItem(STORAGE_KEY, "1");
+        setState(true);
+        $("err").classList.add("hidden");
+        $("pw").value = "";
+      } else {
+        $("err").classList.remove("hidden");
+      }
+    }, document.title, window.location.pathname);
+      } else {
+        $("err").classList.remove("hidden");
+      }
+    }
+
+    $("go").addEventListener("click", tryLogin);
+    $("pw").addEventListener("keydown", (e)=>{ if(e.key === "Enter") tryLogin(); });
+
+    $("logout").addEventListener("click", ()=>{
+      sessionStorage.removeItem(STORAGE_KEY);
+      setState(false);
+    });
+  </script>
+</body>
+</html>
