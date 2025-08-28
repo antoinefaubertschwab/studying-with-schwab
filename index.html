@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Étude — Hub (Flashcards & Quiz)</title>
   <style>
-    :root{--bg:#0b0b0c;--surface:#0d0e11;--card:#111214;--ink:#f2f2f2;--muted:#a7acb4;--border:#24262a;--brand:#8b5cf6}
+    :root{--bg:#ffffff;--surface:#ffffff;--card:#ffffff;--ink:#111111;--muted:#6b7280;--border:#e5e7eb;--brand:#8b5cf6}
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
     .shell{max-width:1060px;margin:0 auto;padding:24px}
     .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
     .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#1f2230,#0f1320);border:1px solid #1f2330}
+    .logo{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#f4f5f7,#eaeefb);border:1px solid #e5e7eb}
     .logo svg{opacity:.9}
     h1{font-size:22px;margin:0}
     .sub{color:var(--muted);font-size:13px;margin:0}
@@ -20,13 +20,13 @@
     /* Home grid */
     .apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:10px}
     .app{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;cursor:pointer;transition:.2s transform,.2s border-color,.2s box-shadow}
-    .app:hover{transform:translateY(-2px);border-color:#2f3240;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+    .app:hover{transform:translateY(-2px);border-color:#d1d5db;box-shadow:0 6px 24px rgba(17,24,39,.08)}
     .app:active{transform:translateY(0)}
-    .app .icon{width:54px;height:54px;border-radius:12px;background:radial-gradient(65% 65% at 35% 35%, #2a2e45, #171a27);display:grid;place-items:center;border:1px solid #1f2330}
+    .app .icon{width:54px;height:54px;border-radius:12px;background:radial-gradient(65% 65% at 35% 35%, #eef2ff, #e5e7eb);display:grid;place-items:center;border:1px solid #e5e7eb}
     .app .meta{min-width:0}
     .app .meta .title{font-weight:700;letter-spacing:.2px}
     .app .meta .desc{color:var(--muted);font-size:13px;margin-top:2px}
-    .pill{display:inline-flex;align-items:center;gap:8px;background:#141720;border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:#d1d5db;font-size:12px}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:#334155;font-size:12px}
 
     /* Views */
     .view{display:none}
@@ -34,23 +34,23 @@
 
     /* Quiz inner UI */
     .row{display:flex;align-items:center;gap:12px;margin:12px 0}
-    .btn{background:#fff;color:#111;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .btn{background:#111;color:#fff;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
     .btn:active{transform:translateY(1px)}
-    .btn.alt{background:#23252a;color:#eaeaea}
-    .btn.ghost{background:transparent;color:#eaeaea;border:1px solid var(--border)}
+    .btn.alt{background:#f3f4f6;color:#111}
+    .btn.ghost{background:transparent;color:#111;border:1px solid var(--border)}
     .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 18px}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
     .grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
-    input[type=text]{width:100%;background:#0e0f12;color:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 14px;outline:none}
-    input[type=text]:focus{border-color:#3a3f46}
+    input[type=text]{width:100%;background:#fff;color:#111;border:1px solid var(--border);border-radius:14px;padding:12px 14px;outline:none}
+    input[type=text]:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.25)}
     .hint{color:var(--muted);font-size:12px}
-    .ok{background:#0f2a1c;color:#3bff98;border:1px solid #154c33}
-    .bad{background:#2a1414;color:#ffb3b3;border:1px solid #4c1515}
+    .ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+    .bad{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
     .msg{margin-top:10px;border-radius:12px;padding:10px 12px;font-weight:600}
     svg{width:100%;height:auto;display:block}
-    .svgwrap{background:#0d0e11;border:1px solid var(--border);border-radius:14px;padding:16px}
-    .answer{color:#c9ced6}
-    .footer{margin-top:18px;color:#a3a6ad;font-size:12px}
+    .svgwrap{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .answer{color:#334155}
+    .footer{margin-top:18px;color:#64748b;font-size:12px}
     .back{display:flex;align-items:center;gap:8px}
     .back svg{opacity:.85}
   </style>
@@ -78,8 +78,8 @@
         <button class="app" id="open-gf">
           <div class="icon">
             <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="60,18 92,36 92,72 60,90 28,72 28,36" fill="none" stroke="#eaeaea" stroke-width="3"/>
-              <circle cx="60" cy="54" r="18" fill="none" stroke="#eaeaea" stroke-width="3"/>
+              <polygon points="60,18 92,36 92,72 60,90 28,72 28,36" fill="none" stroke="#111" stroke-width="3"/>
+              <circle cx="60" cy="54" r="18" fill="none" stroke="#111" stroke-width="3"/>
             </svg>
           </div>
           <div class="meta">
@@ -90,8 +90,8 @@
         <button class="app" disabled style="opacity:.6;cursor:not-allowed">
           <div class="icon">
             <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <rect x="4" y="6" width="16" height="12" rx="3" stroke="#eaeaea" fill="none"/>
-              <path d="M4 10 H20" stroke="#eaeaea"/>
+              <rect x="4" y="6" width="16" height="12" rx="3" stroke="#111" fill="none"/>
+              <path d="M4 10 H20" stroke="#111"/>
             </svg>
           </div>
           <div class="meta">
@@ -105,7 +105,7 @@
     <section id="gf" class="view">
       <div class="bar">
         <button class="btn ghost back" id="back-home" aria-label="Retour à l'accueil">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="#eaeaea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Accueil
         </button>
         <div class="pill">Flashcards GF</div>
@@ -137,7 +137,7 @@
   </div>
 
   <script>
-    // === Utils sans regex d'echappement ===
+    // === Utils ===
     const norm = (s) => {
       let t = s.toLowerCase().normalize('NFD');
       let out = '';
@@ -153,11 +153,11 @@
 
     const shorten = (x1,y1,x2,y2,sh=6)=>{const dx=x2-x1,dy=y2-y1;const L=Math.hypot(dx,dy)||1;const ux=dx/L,uy=dy/L;return [x1+ux*sh,y1+uy*sh,x2-ux*sh,y2-uy*sh];};
     const perp = (dx,dy)=>{const L=Math.hypot(dx,dy)||1;return [-dy/L, dx/L];};
-    const line = (x1,y1,x2,y2,w=2)=>{const [a,b,c,d]=shorten(x1,y1,x2,y2,6);return `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#eaeaea" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" shape-rendering="geometricPrecision"/>`;};
+    const line = (x1,y1,x2,y2,w=2)=>{const [a,b,c,d]=shorten(x1,y1,x2,y2,6);return `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#111" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" shape-rendering="geometricPrecision"/>`;};
     const dbl = (x1,y1,x2,y2,g=4,w=2)=>{const dx=x2-x1,dy=y2-y1;const [nx,ny]=perp(dx,dy);const ox=nx*g,oy=ny*g;return line(x1+ox,y1+oy,x2+ox,y2+oy,w)+line(x1-ox,y1-oy,x2-ox,y2-oy,w)};
     const tri = (x1,y1,x2,y2,g=3,w=2)=>{const dx=x2-x1,dy=y2-y1;const [nx,ny]=perp(dx,dy);const ox=nx*g,oy=ny*g;return line(x1+ox,y1+oy,x2+ox,y2+oy,w)+line(x1,y1,x2,y2,w)+line(x1-ox,y1-oy,x2-ox,y2-oy,w)};
-    const txt = (x,y,t,sz=16)=>`<text x="${x}" y="${y}" font-family="ui-sans-serif,system-ui" font-size="${sz}" fill="#eaeaea">${t}</text>`;
-    const benzene = (cx=160,cy=90,r=38)=>{let pts=[];for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#eaeaea" stroke-width="2" vector-effect="non-scaling-stroke"/>`+`<circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#eaeaea" stroke-width="2" vector-effect="non-scaling-stroke"/>`};
+    const txt = (x,y,t,sz=16)=>`<text x="${x}" y="${y}" font-family="ui-sans-serif,system-ui" font-size="${sz}" fill="#111">${t}</text>`;
+    const benzene = (cx=160,cy=90,r=38)=>{let pts=[];for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/>`+`<circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/>`};
     const S = (w=360,h=180)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
     const E = `</svg>`;
 
@@ -167,7 +167,7 @@
       {k:'phenol', l:'Phénol', a:['phénol','phenol'], d:()=> S()+ benzene()+ line(200,90,250,90)+ txt(262,95,'OH')+E},
       {k:'ether', l:'Éther', a:['ether','éther'], d:()=> S()+ txt(55,95,'R')+ line(75,90,145,90)+ txt(157,95,'O')+ line(167,90,245,90)+ txt(257,95,"R'")+E},
       {k:'aldehyde', l:'Aldéhyde', a:['aldehyde','aldéhyde'], d:()=> S()+ txt(45,95,'R')+ line(68,90,125,90)+ dbl(128,90,205,90,4)+ txt(216,95,'O')+ line(128,90,128,138)+ txt(122,152,'H')+E},
-      {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(380,180)+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,320,90)+ txt(330,95,"R'")+E},
+      {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(420,180)+ txt(40,95,'R')+ line(62,90,150,90)+ dbl(150,90,150,40,4)+ txt(144,30,'O')+ line(150,90,350,90)+ txt(360,95,"R'")+E},
       {k:'carboxylique', l:'Acide carboxylique', a:['acide carboxylique','carboxylique','carboxylic acid'], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(118,152,'OH')+E},
       {k:'ester', l:'Ester', a:['ester'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(122,164,'O')+ line(140,160,300,160)+ txt(312,165,"R'")+E},
       {k:'amide', l:'Amide', a:['amide'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(118,164,'NH')+ line(148,160,250,160)+ txt(262,165,"R'")+E},
@@ -177,7 +177,7 @@
       {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ tri(148,90,250,90,3)+ txt(262,95,'N')+E},
       {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:()=> S()+ txt(55,95,'R')+ line(76,90,170,90)+ txt(184,95,'X')+ txt(204,114,'(F/Cl/Br/I)',12)+E},
       {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d:()=> S(380,200)+ txt(45,105,'R')+ line(66,100,140,100)+ txt(154,105,'N⁺')+ dbl(168,100,238,70,4)+ line(168,100,238,130)+ txt(246,74,'O')+ txt(246,134,'O⁻')+E},
-      {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(158,95,'S')+ line(168,90,235,90)+ txt(245,95,'H')+E},
+      {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(158,95,'S')+ line(168,90,235,90)+ txt(245,95,'H')+E},
       {k:'sulfide', l:'Sulfure (thioéther)', a:['sulfure','thioether','thioéther'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(158,95,'S')+ line(168,90,245,90)+ txt(257,95,"R'")+E},
       {k:'sulfoxide', l:'Sulfoxyde', a:['sulfoxyde','sulfoxide'], d:()=> S(360,200)+ txt(40,120,'R')+ line(62,116,132,116)+ txt(144,121,'S')+ dbl(156,116,156,56,4)+ txt(148,50,'O')+ line(156,116,280,116)+ txt(292,121,"R'")+E},
       {k:'sulfone', l:'Sulfone', a:['sulfone','sulfonyl'], d:()=> S(360,220)+ txt(40,130,'R')+ line(62,126,132,126)+ txt(144,131,'S')+ dbl(156,126,156,66,4)+ txt(148,60,'O')+ dbl(156,126,156,186,4)+ txt(148,198,'O')+ line(156,126,280,126)+ txt(292,131,"R'")+E},
@@ -195,8 +195,8 @@
     const $ = (id)=>document.getElementById(id);
     const render = ()=>{const g = G[order[idx]];$('svg').innerHTML = g.d();$('prog').textContent = `${idx+1}/${G.length}`;$('score').textContent = `Score : ${score}`;$('msg').innerHTML = '';$('accepted').innerHTML = '';$('input').value = '';$('input').focus();};
 
-    const checkAns = ()=>{const g = G[order[idx]];const a = norm($('input').value);const ok = [g.l, ...g.a].map(norm).some(x=>x===a);$('msg').className = 'msg ' + (ok? 'ok':'bad');$('msg').textContent = ok ? 'Correct.' : 'Incorrect.';if(ok) score++; else $('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
-    const reveal = ()=>{const g = G[order[idx]];$('msg').className = 'msg bad';$('msg').textContent = 'Révélé.';$('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
+    const checkAns = ()=>{const g = G[order[idx]];const a = norm($('input').value);const ok = [g.l, ...g.a].map(norm).some(x=>x===a);$('msg').className = 'msg ' + (ok? 'ok':'bad');$('msg').textContent = ok ? 'Correct.' : 'Incorrect.';if(ok) score++; else $('accepted').innerHTML = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
+    const reveal = ()=>{const g = G[order[idx]];$('msg').className = 'msg bad';$('msg').textContent = 'Révélé.';$('accepted').innerHTML = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
 
     // === Buttons ===
     document.getElementById('check').addEventListener('click', checkAns);
