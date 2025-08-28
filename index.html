@@ -3,21 +3,37 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Groupements fonctionnels — Quiz (dessins nets)</title>
+  <title>Étude — Hub (Flashcards & Quiz)</title>
   <style>
-    :root{--bg:#0b0b0c;--card:#111214;--muted:#b3b3b3;--fg:#f2f2f2;--ok:#0ac95b;--bad:#ff4d4f;--accent:#e5e7eb;--border:#24262a}
+    :root{--bg:#0b0b0c;--surface:#0d0e11;--card:#111214;--ink:#f2f2f2;--muted:#a7acb4;--border:#24262a;--brand:#8b5cf6}
+    *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
-    .wrap{max-width:880px;margin:32px auto;padding:0 16px}
-    h1{font-size:28px;margin:0 0 4px}
-    .sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    .shell{max-width:1060px;margin:0 auto;padding:24px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#1f2230,#0f1320);border:1px solid #1f2330}
+    .logo svg{opacity:.9}
+    h1{font-size:22px;margin:0}
+    .sub{color:var(--muted);font-size:13px;margin:0}
+    .apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:10px}
+    .app{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;cursor:pointer;transition:.2s transform,.2s border-color,.2s box-shadow}
+    .app:hover{transform:translateY(-2px);border-color:#2f3240;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+    .app:active{transform:translateY(0)}
+    .app .icon{width:54px;height:54px;border-radius:12px;background:radial-gradient(65% 65% at 35% 35%, #2a2e45, #171a27);display:grid;place-items:center;border:1px solid #1f2330}
+    .app .meta{min-width:0}
+    .app .meta .title{font-weight:700;letter-spacing:.2px}
+    .app .meta .desc{color:var(--muted);font-size:13px;margin-top:2px}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:#141720;border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:#d1d5db;font-size:12px}
+    .view{display:none}
+    .view.show{display:block}
     .row{display:flex;align-items:center;gap:12px;margin:12px 0}
     .btn{background:#fff;color:#111;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
     .btn:active{transform:translateY(1px)}
     .btn.alt{background:#23252a;color:#eaeaea}
-    .pill{color:#d1d5db;background:#17181b;border:1px solid var(--border);padding:6px 10px;border-radius:12px;font-size:12px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
-    .flex{display:flex;gap:12px;align-items:center}
+    .btn.ghost{background:transparent;color:#eaeaea;border:1px solid var(--border)}
+    .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 18px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
     .grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
     input[type=text]{width:100%;background:#0e0f12;color:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 14px;outline:none}
     input[type=text]:focus{border-color:#3a3f46}
@@ -32,50 +48,94 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Flashcards inverses — Groupements fonctionnels (21)</h1>
-    <div class="sub">Tape le nom du groupe (FR/EN, accents ignorés). Mélange, réponds, révèle si nécessaire.</div>
-
-    <div class="row">
-      <button class="btn" id="shuffle">Mélanger</button>
-      <span class="pill" id="prog"></span>
-      <span class="pill" id="score"></span>
-    </div>
-
-    <div class="card svgwrap"><div id="svg"></div></div>
-
-    <div class="row grid">
-      <input type="text" id="input" placeholder="Ex. alcool, cétone, nitrile…" />
-      <div class="flex">
-        <button class="btn" id="check">Vérifier</button>
-        <button class="btn alt" id="reveal">Révéler</button>
-        <button class="btn" id="next">Suivant</button>
+  <div class="shell">
+    <div class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="9" stroke="#8b5cf6"/>
+            <path d="M12 3 L20 12 L12 21 L4 12 Z" stroke="#8b5cf6" opacity=".35"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Étude — Hub</h1>
+          <p class="sub">Choisis un module pour commencer</p>
+        </div>
       </div>
+      <div class="pill" id="breadcrumbs">Accueil</div>
     </div>
 
-    <div id="msg"></div>
-    <div class="footer" id="accepted"></div>
+    <section id="home" class="view show">
+      <div class="apps">
+        <button class="app" id="open-gf">
+          <div class="icon">
+            <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="60,18 92,36 92,72 60,90 28,72 28,36" fill="none" stroke="#eaeaea" stroke-width="3"/>
+              <circle cx="60" cy="54" r="18" fill="none" stroke="#eaeaea" stroke-width="3"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <div class="title">Flashcards — Groupements fonctionnels</div>
+            <div class="desc">21 cartes · réponse courte · dessins nets</div>
+          </div>
+        </button>
+        <button class="app" disabled style="opacity:.6;cursor:not-allowed">
+          <div class="icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="6" width="16" height="12" rx="3" stroke="#eaeaea" fill="none"/>
+              <path d="M4 10 H20" stroke="#eaeaea"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <div class="title">Quiz — à venir</div>
+            <div class="desc">Ajoute d'autres modules ici</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section id="gf" class="view">
+      <div class="bar">
+        <button class="btn ghost" id="back-home" aria-label="Retour à l'accueil">⬅ Accueil</button>
+        <div class="pill">Flashcards GF</div>
+      </div>
+
+      <h2 style="margin:0 0 6px 0;font-size:20px">Flashcards inverses — Groupements fonctionnels (21)</h2>
+      <p class="sub" style="margin-bottom:12px">Tape le nom du groupe (FR/EN, accents ignorés). Mélange, réponds, révèle si nécessaire.</p>
+
+      <div class="row">
+        <button class="btn" id="shuffle">Mélanger</button>
+        <span class="pill" id="prog"></span>
+        <span class="pill" id="score"></span>
+      </div>
+
+      <div class="card svgwrap"><div id="svg"></div></div>
+
+      <div class="row grid">
+        <input type="text" id="input" placeholder="Ex. alcool, cétone, nitrile…" />
+        <div style="display:flex;gap:10px">
+          <button class="btn" id="check">Vérifier</button>
+          <button class="btn alt" id="reveal">Révéler</button>
+          <button class="btn" id="next">Suivant</button>
+        </div>
+      </div>
+
+      <div id="msg"></div>
+      <div class="footer" id="accepted"></div>
+    </section>
   </div>
 
   <script>
-    // Normalisation des réponses
     const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'\-]/g,'').replace(/\s+/g,' ').trim();
-
-    // Primitives SVG : parallèles propres + traits raccourcis aux jonctions
     const shorten = (x1,y1,x2,y2,sh=6)=>{const dx=x2-x1,dy=y2-y1;const L=Math.hypot(dx,dy)||1;const ux=dx/L,uy=dy/L;return [x1+ux*sh,y1+uy*sh,x2-ux*sh,y2-uy*sh];};
     const perp = (dx,dy)=>{const L=Math.hypot(dx,dy)||1;return [-dy/L, dx/L];};
-
     const line = (x1,y1,x2,y2,w=2)=>{const [a,b,c,d]=shorten(x1,y1,x2,y2,6);return `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#eaeaea" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" shape-rendering="geometricPrecision"/>`;};
     const dbl = (x1,y1,x2,y2,g=4,w=2)=>{const dx=x2-x1,dy=y2-y1;const [nx,ny]=perp(dx,dy);const ox=nx*g,oy=ny*g;return line(x1+ox,y1+oy,x2+ox,y2+oy,w)+line(x1-ox,y1-oy,x2-ox,y2-oy,w)};
     const tri = (x1,y1,x2,y2,g=3,w=2)=>{const dx=x2-x1,dy=y2-y1;const [nx,ny]=perp(dx,dy);const ox=nx*g,oy=ny*g;return line(x1+ox,y1+oy,x2+ox,y2+oy,w)+line(x1,y1,x2,y2,w)+line(x1-ox,y1-oy,x2-ox,y2-oy,w)};
     const txt = (x,y,t,sz=16)=>`<text x="${x}" y="${y}" font-family="ui-sans-serif,system-ui" font-size="${sz}" fill="#eaeaea">${t}</text>`;
-
     const benzene = (cx=160,cy=90,r=38)=>{let pts=[];for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#eaeaea" stroke-width="2" vector-effect="non-scaling-stroke"/>`+`<circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#eaeaea" stroke-width="2" vector-effect="non-scaling-stroke"/>`};
-
     const S = (w=360,h=180)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
     const E = `</svg>`;
-
-    // Cartes — coordonnées ajustées pour éviter les overlaps
     const G = [
       {k:'alcool', l:'Alcool', a:['alcool','alcohol'], d:()=> S()+ txt(60,95,'R')+ line(80,90,150,90)+ txt(162,95,'O')+ line(172,90,235,90)+ txt(245,95,'H')+E},
       {k:'phenol', l:'Phénol', a:['phénol','phenol'], d:()=> S()+ benzene()+ line(200,90,250,90)+ txt(262,95,'OH')+E},
@@ -84,7 +144,7 @@
       {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(380,180)+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,320,90)+ txt(330,95,"R'")+E},
       {k:'carboxylique', l:'Acide carboxylique', a:['acide carboxylique','carboxylique','carboxylic acid'], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(118,152,'OH')+E},
       {k:'ester', l:'Ester', a:['ester'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(122,164,'O')+ line(140,160,300,160)+ txt(312,165,"R'")+E},
-      {k:'amide', l:'Amide', a:['amide'], d:()=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(118,164,'NH')+ line(148,160,250,160)+ txt(262,165,"R'")+E},
+      {k:'amide', l:'Amide', a:['amide'], d:=> S(400,200)+ txt(40,105,'R')+ line(62,100,130,100)+ dbl(132,100,210,100,4)+ txt(222,105,'O')+ line(132,100,132,150)+ txt(118,164,'NH')+ line(148,160,250,160)+ txt(262,165,"R'")+E},
       {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d:()=> S(460,220)+ txt(40,120,'R')+ line(64,116,132,116)+ dbl(134,116,212,116,4)+ txt(224,121,'O')+ line(134,116,134,176)+ txt(122,190,'O')+ line(142,184,300,184)+ dbl(304,184,382,184,4)+ txt(394,189,'O')+ line(304,184,304,122)+ txt(292,116,"R'")+E},
       {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride','chlorure d\'acyle'], d:()=> S()+ txt(40,95,'R')+ line(62,90,130,90)+ dbl(132,90,210,90,4)+ txt(222,95,'O')+ line(132,90,132,138)+ txt(124,152,'X')+E},
       {k:'amine', l:'Amine', a:['amine','amino'], d:()=> S()+ txt(55,95,'R')+ line(76,90,145,90)+ txt(157,95,'N')+ line(167,90,245,90)+ txt(257,95,"R'")+E},
@@ -100,22 +160,29 @@
       {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> S()+ benzene()+E},
     ];
 
-    // Logique quiz
     let order = [...G.keys()];
     const shuffleArr = (arr)=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr};
     order = shuffleArr(order);
 
     let idx = 0, score = 0;
     const $ = (id)=>document.getElementById(id);
-    const render = ()=>{const g = G[order[idx]];document.getElementById('svg').innerHTML = g.d();document.getElementById('prog').textContent = `${idx+1}/${G.length}`;document.getElementById('score').textContent = `Score : ${score}`;document.getElementById('msg').innerHTML = '';document.getElementById('accepted').innerHTML = '';document.getElementById('input').value = '';document.getElementById('input').focus();};
-    const checkAns = ()=>{const g = G[order[idx]];const a = norm(document.getElementById('input').value);const ok = [g.l, ...g.a].map(norm).some(x=>x===a);document.getElementById('msg').className = 'msg ' + (ok? 'ok':'bad');document.getElementById('msg').textContent = ok ? 'Correct.' : 'Incorrect.';if(ok) score++; else document.getElementById('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
-    const reveal = ()=>{const g = G[order[idx]];document.getElementById('msg').className = 'msg bad';document.getElementById('msg').textContent = 'Révélé.';document.getElementById('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
+    const render = ()=>{const g = G[order[idx]];$('svg').innerHTML = g.d();$('prog').textContent = `${idx+1}/${G.length}`;$('score').textContent = `Score : ${score}`;$('msg').innerHTML = '';$('accepted').innerHTML = '';$('input').value = '';$('input').focus();};
+
+    const checkAns = ()=>{const g = G[order[idx]];const a = norm($('input').value);const ok = [g.l, ...g.a].map(norm).some(x=>x===a);$('msg').className = 'msg ' + (ok? 'ok':'bad');$('msg').textContent = ok ? 'Correct.' : 'Incorrect.';if(ok) score++; else $('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
+    const reveal = ()=>{const g = G[order[idx]];$('msg').className = 'msg bad';$('msg').textContent = 'Révélé.';$('accepted').innerHTML = `<span class=\"hint\">Réponse attendue : <span class=\"answer\">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;};
 
     document.getElementById('check').addEventListener('click', checkAns);
     document.getElementById('reveal').addEventListener('click', reveal);
     document.getElementById('next').addEventListener('click', ()=>{ idx = (idx+1) % G.length; render(); });
     document.getElementById('shuffle').addEventListener('click', ()=>{ order = shuffleArr([...G.keys()]); idx = 0; score = 0; render(); });
     document.getElementById('input').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ checkAns(); }});
+
+    // Navigation Home <-> Module
+    const home = document.getElementById('home');
+    const gf = document.getElementById('gf');
+    const crumbs = document.getElementById('breadcrumbs');
+    document.getElementById('open-gf').addEventListener('click', ()=>{home.classList.remove('show');gf.classList.add('show');crumbs.textContent='Flashcards GF';});
+    document.getElementById('back-home').addEventListener('click', ()=>{gf.classList.remove('show');home.classList.add('show');crumbs.textContent='Accueil';});
 
     render();
   </script>
