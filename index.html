@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Étude — Hub (Flashcards & Quiz)</title>
+  <title>Étude — Hub (Flashcards)</title>
   <style>
     :root{--bg:#ffffff;--surface:#ffffff;--card:#ffffff;--ink:#111111;--muted:#6b7280;--border:#e5e7eb;--brand:#8b5cf6}
     *{box-sizing:border-box}
@@ -26,7 +26,7 @@
     .app .meta .title{font-weight:700;letter-spacing:.2px}
     .app .meta .desc{color:var(--muted);font-size:13px;margin-top:2px}
     .pill{display:inline-flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:#334155;font-size:12px}
-    .row{display:flex;align-items:center;gap:12px;margin:12px 0}
+    .row{display:flex;align-items:center;gap:12px;margin:12px 0;flex-wrap:wrap}
     .btn{background:#111;color:#fff;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
     .btn:active{transform:translateY(1px)}
     .btn.alt{background:#f3f4f6;color:#111}
@@ -115,10 +115,9 @@
 
       <div class="row">
         <button class="btn" id="shuffle" type="button">Mélanger</button>
-        <button class="btn alt" id="mode-train" type="button" aria-pressed="true">Entraînement</button>
-        <button class="btn alt" id="mode-exam" type="button" aria-pressed="false">Examen</button>
+        <button class="btn alt" id="time-btn" type="button">Temps/carte : 8s</button>
         <button class="btn alt" id="hint" type="button">Indice</button>
-        <span class="pill" id="timer" style="display:none">00:30</span>
+        <span class="pill" id="timer">00:08</span>
         <span class="pill" id="prog"></span>
         <span class="pill" id="score"></span>
       </div>
@@ -135,11 +134,6 @@
       </div>
 
       <p class="sub" style="margin-top:6px">Raccourcis : Enter=Vérifier · R=Révéler · N=Suivant · M=Mélanger</p>
-
-      <div class="row">
-        <button class="btn ghost" id="export-csv" type="button">Exporter CSV</button>
-        <button class="btn ghost" id="export-anki" type="button">Exporter Anki</button>
-      </div>
 
       <div id="msg"></div>
       <div id="live" aria-live="polite" class="visually-hidden"></div>
@@ -165,8 +159,8 @@
         return out;
       };
 
-      const txt = (x,y,t,sz=16)=>`<text x="${x}" y="${y}" font-family="ui-sans-serif,system-ui" font-size="${sz}" fill="#111">${t}</text>`;
-      const benzene = (cx=160,cy=90,r=38)=>{let pts=[];for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/>`+`<circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/>`};
+      const benzene = (cx=160,cy=90,r=38)=>{let pts=[];for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return `<svg viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`};
+
       const S = (w=360,h=180)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">`;
       const E = `</svg>`;
 
@@ -188,42 +182,45 @@
         {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:()=> S(360,180)+`<image href="./gf_imgs/thiol.png" xlink:href="./gf_imgs/thiol.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d:()=> S(360,180)+`<image href="./gf_imgs/alkene.png" xlink:href="./gf_imgs/alkene.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'alkyne', l:'Alcyne', a:['alcyne','alkyne'], d:()=> S(360,180)+`<image href="./gf_imgs/alkyne.png" xlink:href="./gf_imgs/alkyne.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> S(360,180)+benzene()+E},
+        {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> benzene()},
       ];
 
-      let order = [...G.keys()];
-      const shuffleArr = (arr)=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr};
-      order = shuffleArr(order);
+      // --- État session ---
+      let order = shuffleArr([...G.keys()]);
+      let idx = 0, score = 0, finished = false;
+      const correctSet = new Set(); // évite double comptage
 
-      let idx = 0, score = 0;
+      // --- Helpers UI/Timer ---
       const $ = (id)=>document.getElementById(id);
-
       const imgHrefOf = (g)=> (g.d().match(/href="([^"]+)"/)||[])[1];
       const prefetchNext = (n=3)=>{for(let i=1;i<=n;i++){const j=order[(idx+i)%order.length];const src=imgHrefOf(G[j]); if(!src) continue; const im=new Image(); im.src=src;}};
+      const toast=(t)=>{const el=$('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2000);};
 
-      const toast=(t)=>{const el=$('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2500);};
-      window.addEventListener('error', ()=>toast('Erreur script — vérifie la dernière modif'));
-      window.addEventListener('unhandledrejection', ()=>toast('Erreur promesse — check console'));
+      const DURATIONS=[5,8,12];
+      let timePerCard = 8;
+      let timeLeft = timePerCard, tId=null;
 
-      let MODE='train', timeLeft=30, tId=null;
-      const setMode=(m)=>{MODE=m;$('mode-train').setAttribute('aria-pressed', m==='train');$('mode-exam').setAttribute('aria-pressed', m==='exam');$('reveal').disabled=(m==='exam');$('timer').style.display=(m==='exam')?'':'none';resetTimer();};
-      const resetTimer=()=>{clearInterval(tId);if(MODE!=='exam')return;timeLeft=30;$('timer').textContent=`00:${String(timeLeft).padStart(2,'0')}`;tId=setInterval(()=>{timeLeft--;$('timer').textContent=`00:${String(Math.max(0,timeLeft)).padStart(2,'0')}`;if(timeLeft<=0){clearInterval(tId);$('next').click();}},1000);};
-      $('mode-train').onclick=()=>setMode('train');
-      $('mode-exam').onclick=()=>setMode('exam');
+      const setTimeBtnLabel=()=>{$('time-btn').textContent = `Temps/carte : ${timePerCard}s`; $('timer').textContent = `00:${String(timePerCard).padStart(2,'0')}`;};
+      $('time-btn').onclick=()=>{
+        const i = (DURATIONS.indexOf(timePerCard)+1)%DURATIONS.length;
+        timePerCard = DURATIONS[i];
+        setTimeBtnLabel();
+        resetTimer();
+      };
 
-      const HINTS={alcool:"contient –OH", phenol:"anneau arène + –OH", ether:"R–O–R’", aldehyde:"C(=O)–H", ketone:"C(=O) interne", carboxylique:"–COOH", ester:"–COOR’", amide:"–CONH–", anhydride:"–(CO)–O–(CO)–", acylhalide:"–COX", amine:"–NR₂", nitrile:"–C≡N", haloalkane:"R–X", nitro:"–NO₂", thiol:"–SH", alkene:"C=C", alkyne:"C≡C", aromatic:"cycle arène"};
-      $('hint').onclick=()=>{const g=G[order[idx]];$('msg').className='msg';$('msg').textContent=`Indice : ${HINTS[g.k]||'—'}`;$('live').textContent=$('msg').textContent;};
+      const resetTimer=()=>{
+        clearInterval(tId);
+        timeLeft = timePerCard;
+        $('timer').textContent = `00:${String(timeLeft).padStart(2,'0')}`;
+        tId = setInterval(()=>{
+          timeLeft--;
+          $('timer').textContent = `00:${String(Math.max(0,timeLeft)).padStart(2,'0')}`;
+          if(timeLeft<=0){ clearInterval(tId); nextCard(); }
+        },1000);
+      };
 
-      const lev=(a,b)=>{a=[...norm(a)],b=[...norm(b)];const m=a.length,n=b.length;const d=Array.from({length:m+1},(_,i)=>Array(n+1).fill(0));for(let i=0;i<=m;i++)d[i][0]=i;for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c)}return d[m][n];};
-      const acceptFuzzy=(ans,list)=>list.some(x=>lev(ans,x)<=2);
-
-      const KEY='gf_stats_v1';
-      const state=JSON.parse(localStorage.getItem(KEY)||'{"best":0,"wrong":{}}');
-      const save=()=>localStorage.setItem(KEY, JSON.stringify(state));
-      const onCorrect=(k)=>{state.best=Math.max(state.best,score);save();};
-      const onWrong=(k)=>{state.wrong[k]=(state.wrong[k]||0)+1;save();};
-
-      const render = ()=>{
+      // --- Rendu / navigation ---
+      function render(){
         const g = G[order[idx]];
         $('svg').innerHTML = g.d();
         $('svgwrap').setAttribute('role','img');
@@ -233,45 +230,88 @@
         $('msg').innerHTML = '';
         $('accepted').innerHTML = '';
         $('input').value = '';
+        $('input').disabled = false;
+        ['check','reveal','next','hint','time-btn'].forEach(id=>$(id).disabled=false);
         $('input').focus();
         prefetchNext(3);
+        setTimeBtnLabel();
         resetTimer();
-      };
+      }
 
-      const checkAns = ()=>{
+      function finish(){
+        finished = true;
+        clearInterval(tId);
+        $('msg').className='msg';
+        $('msg').textContent = `Session terminée — Score : ${score}/${G.length}`;
+        $('live').textContent = $('msg').textContent;
+        $('accepted').innerHTML = '';
+        $('input').disabled = true;
+        ['check','reveal','next','hint'].forEach(id=>$(id).disabled=true);
+      }
+
+      function nextCard(){
+        if (finished) return;
+        if (idx >= G.length-1){ finish(); return; }
+        idx++;
+        render();
+      }
+
+      // --- Vérification / indice ---
+      function checkAns(){
+        if (finished) return;
         const g = G[order[idx]];
         const a = norm($('input').value);
         const base = [g.l, ...g.a].map(norm);
-        const ok = base.includes(a) || acceptFuzzy(a, base);
+        const ok = base.includes(a) || base.some(x=>lev(a,x)<=2);
         $('msg').className = 'msg ' + (ok? 'ok':'bad');
         $('msg').textContent = ok ? 'Correct.' : 'Incorrect.';
         $('live').textContent = $('msg').textContent;
-        if(ok){ score++; onCorrect(g.k);}
-        else { $('accepted').innerHTML = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`; onWrong(g.k); const cur=order[idx]; order.splice(Math.min(order.length, idx+3),0,cur); }
-      };
-      const reveal = ()=>{
+        if(ok && !correctSet.has(g.k)){ correctSet.add(g.k); score++; $('score').textContent = `Score : ${score}`; }
+        if(!ok){
+          $('accepted').innerHTML = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;
+        } else {
+          $('accepted').innerHTML = '';
+        }
+      }
+
+      function reveal(){
+        if (finished) return;
         const g = G[order[idx]];
         $('msg').className = 'msg bad';
         $('msg').textContent = 'Révélé.';
         $('accepted').innerHTML = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;
         $('live').textContent = $('msg').textContent;
-      };
+      }
 
+      function showHint(){
+        if (finished) return;
+        const g = G[order[idx]];
+        const first = (norm(g.l)[0]||'?').toUpperCase();
+        $('msg').className = 'msg';
+        $('msg').textContent = `Indice : ${first}`;
+        $('live').textContent = $('msg').textContent;
+      }
+
+      // --- Fuzzy (Levenshtein) ---
+      const lev=(a,b)=>{a=[...norm(a)],b=[...norm(b)];const m=a.length,n=b.length;const d=Array.from({length:m+1},(_,i)=>Array(n+1).fill(0));for(let i=0;i<=m;i++)d[i][0]=i;for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c)}return d[m][n];};
+
+      // --- Écouteurs ---
       $('check').addEventListener('click', checkAns);
       $('reveal').addEventListener('click', reveal);
-      $('next').addEventListener('click', ()=>{ idx = (idx+1) % G.length; render(); });
-      $('shuffle').addEventListener('click', ()=>{ order = shuffleArr([...G.keys()]); idx = 0; score = 0; render(); });
+      $('next').addEventListener('click', nextCard);
+      $('shuffle').addEventListener('click', ()=>{
+        order = shuffleArr([...G.keys()]);
+        idx = 0; score = 0; finished = false; correctSet.clear();
+        render();
+      });
+      $('hint').addEventListener('click', showHint);
       $('input').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ checkAns(); }});
-
-      const dl=(name,text)=>{const b=new Blob([text],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);};
-      $('export-csv').onclick=()=>{const rows=G.map(g=>[`[image:${g.k}]`, g.l, g.a.join('|')]);dl('groupements.csv', rows.map(r=>r.map(x=>`"${x.replace(/"/g,'""')}"`).join(',')).join('\n'));};
-      $('export-anki').onclick=()=>{const rows=G.map(g=>[`<img src="${(imgHrefOf(g)||'./gf_imgs/'+g.k+'.png').replace(/"/g,'&quot;')}">`, g.l]);dl('groupements_anki.csv', rows.map(r=>r.join(';')).join('\n'));};
 
       const home = $('home');
       const gf = $('gf');
       const crumbs = $('breadcrumbs');
-      $('open-gf').addEventListener('click', ()=>{ home.hidden = true; gf.hidden = false; crumbs.textContent='Flashcards GF'; });
-      $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; });
+      $('open-gf').addEventListener('click', ()=>{ home.hidden = true; gf.hidden = false; crumbs.textContent='Flashcards GF'; render(); });
+      $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; clearInterval(tId); });
 
       document.addEventListener('keydown', (e)=>{
         if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
@@ -284,23 +324,18 @@
       $('svg').addEventListener('click', ()=>{
         const g=G[order[idx]];
         const src = imgHrefOf(g);
-        $('zoomInner').innerHTML = src ? `<img src="${src}" alt="" style="display:block;max-width:100%;height:auto">` : g.d().replace('viewBox="0 0 360 180"','viewBox="0 0 720 360"');
+        $('zoomInner').innerHTML = src ? `<img src="${src}" alt="" style="display:block;max-width:100%;height:auto">` : benzene();
         $('zoom').style.display='flex';
       });
       $('zoom').addEventListener('click', (e)=>{ if (e.target.id==='zoom') $('zoom').style.display='none'; });
 
-      if ('serviceWorker' in navigator) {
-        const swCode = `
-          self.addEventListener('install', e=>{e.waitUntil(caches.open('etude-v1').then(c=>c.addAll(['./'])));});
-          self.addEventListener('fetch', e=>{e.respondWith(caches.match(e.request).then(r=> r || fetch(e.request)));});
-        `;
-        const blob = new Blob([swCode], {type:'text/javascript'});
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).catch(()=>{});
-      }
+      window.addEventListener('error', ()=>toast('Erreur script — vérifie la dernière modif'));
+      window.addEventListener('unhandledrejection', ()=>toast('Erreur promesse — check console'));
 
-      const safeRender=()=>{try{render();}catch(e){console.error(e);idx=(idx+1)%order.length;render();}};
-      safeRender();
+      function shuffleArr(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+
+      // init
+      setTimeBtnLabel();
     })();
   </script>
 </body>
