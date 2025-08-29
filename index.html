@@ -85,6 +85,7 @@
             <div class="title">Flashcards — Groupements fonctionnels</div>
             <div class="desc">18 cartes · réponse courte · dessins nets</div>
           </div>
+          <span class="pill" id="best-pill" style="margin-left:auto">Meilleur : 0/18</span>
         </button>
         <button class="app" type="button" disabled style="opacity:.6;cursor:not-allowed">
           <div class="icon">
@@ -138,6 +139,10 @@
       <div id="msg"></div>
       <div id="live" aria-live="polite" class="visually-hidden"></div>
       <div class="footer" id="accepted"></div>
+
+      <div class="row" id="finish-actions" hidden>
+        <button class="btn" id="restart" type="button">Recommencer le quiz</button>
+      </div>
     </section>
   </div>
 
@@ -177,7 +182,7 @@
         {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride',"chlorure d'acyle"], d:()=> S(360,180)+`<image href="./gf_imgs/acylhalide.png" xlink:href="./gf_imgs/acylhalide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'amine', l:'Amine', a:['amine','amino'], d:()=> S(360,180)+`<image href="./gf_imgs/amine.png" xlink:href="./gf_imgs/amine.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d:()=> S(360,180)+`<image href="./gf_imgs/nitrile.png" xlink:href="./gf_imgs/nitrile.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:()=> S(360,180)+`<image href="./gf_imgs/haloalkane.png" xlink:href="./gf_imgs/haloalkane.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:=> S(360,180)+`<image href="./gf_imgs/haloalkane.png" xlink:href="./gf_imgs/haloalkane.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d:()=> S(360,180)+`<image href="./gf_imgs/nitro.png" xlink:href="./gf_imgs/nitro.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:()=> S(360,180)+`<image href="./gf_imgs/thiol.png" xlink:href="./gf_imgs/thiol.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d:()=> S(360,180)+`<image href="./gf_imgs/alkene.png" xlink:href="./gf_imgs/alkene.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
@@ -185,22 +190,52 @@
         {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> benzene()},
       ];
 
-      // --- État session ---
+      const MNEMS = {
+        alcool:["OH → « Oh l’alcool »","suffixe -ol","R–OH = simple bâton + bulle"],
+        phenol:["Ar–OH = arène + OH","pHénol → pH (acide faible)","OH collé au cycle"],
+        ether:["Éther = « entre » deux R","R–O–R’ comme un pont","Pas d’H sur O"],
+        aldehyde:["C=O en bout → H terminal","« aldeHYDE » → H à côté","Odeur d’aldéhyde = extrémité"],
+        ketone:["C=O au milieu","« céTone » → T = au cenTre","deux R autour du C=O"],
+        carboxylique:["COOH = « cook »","double + OH = acide","C=O + O–H collés"],
+        ester:["COOR’ = acide + alcool","odeur fruits = ester","O–C=O en sandwich"],
+        amide:["CONH = amide","amide = acide + amine","C=O voisin de N"],
+        anhydride:["(CO)–O–(CO) = deux acides","anhydre = sans eau formée","symétrie d’acide–O–acide"],
+        acylhalide:["CO–X (X=Cl…)","réactif = X part facile","X remplace le OH acide"],
+        amine:["N = trio branche","odeur poisson = amine","suffixe -amine"],
+        nitrile:["C≡N = cyano","ligne triple = pointue","CN = cyanure"],
+        haloalkane:["R–X (F/Cl/Br/I)","X = halogène sur chaîne","réaction SN/E facile"],
+        nitro:["NO2 (N+ O- O)","explosif = nitro","N relié à deux O"],
+        thiol:["–SH = soufre","odeur ail = thiol","analogue de l’alcool"],
+        alkene:["C=C → double","suffixe -ène","π-liaison = plat"],
+        alkyne:["C≡C → triple","suffixe -yne","ligne bien droite"],
+        aromatic:["cycle benzène","Ar = arène","6 π délocalisés"]
+      };
+
+      function shuffleArr(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+
       let order = shuffleArr([...G.keys()]);
       let idx = 0, score = 0, finished = false;
-      const correctSet = new Set(); // évite double comptage
+      const correctSet = new Set();
 
-      // --- Helpers UI/Timer ---
       const $ = (id)=>document.getElementById(id);
       const imgHrefOf = (g)=> (g.d().match(/href="([^"]+)"/)||[])[1];
       const prefetchNext = (n=3)=>{for(let i=1;i<=n;i++){const j=order[(idx+i)%order.length];const src=imgHrefOf(G[j]); if(!src) continue; const im=new Image(); im.src=src;}};
       const toast=(t)=>{const el=$('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2000);};
 
-      const DURATIONS=[5,8,12];
+      const DURATIONS=[5,8,12,Infinity];
       let timePerCard = 8;
       let timeLeft = timePerCard, tId=null;
 
-      const setTimeBtnLabel=()=>{$('time-btn').textContent = `Temps/carte : ${timePerCard}s`; $('timer').textContent = `00:${String(timePerCard).padStart(2,'0')}`;};
+      const BEST_KEY='gf_best_v1';
+      const getBest=()=> Number(localStorage.getItem(BEST_KEY)||0);
+      const setBest=(n)=> localStorage.setItem(BEST_KEY, String(Math.max(getBest(), n)));
+      const updateBestHome=()=>{const el=$('best-pill'); if(el) el.textContent=`Meilleur : ${getBest()}/${G.length}`;};
+
+      const setTimeBtnLabel=()=>{
+        const label = (timePerCard===Infinity)?'∞':`${timePerCard}s`;
+        $('time-btn').textContent = `Temps/carte : ${label}`;
+        $('timer').textContent = (timePerCard===Infinity)?'∞':`00:${String(timePerCard).padStart(2,'0')}`;
+      };
       $('time-btn').onclick=()=>{
         const i = (DURATIONS.indexOf(timePerCard)+1)%DURATIONS.length;
         timePerCard = DURATIONS[i];
@@ -210,6 +245,7 @@
 
       const resetTimer=()=>{
         clearInterval(tId);
+        if(timePerCard===Infinity){ $('timer').textContent='∞'; return; }
         timeLeft = timePerCard;
         $('timer').textContent = `00:${String(timeLeft).padStart(2,'0')}`;
         tId = setInterval(()=>{
@@ -219,7 +255,6 @@
         },1000);
       };
 
-      // --- Rendu / navigation ---
       function render(){
         const g = G[order[idx]];
         $('svg').innerHTML = g.d();
@@ -232,6 +267,7 @@
         $('input').value = '';
         $('input').disabled = false;
         ['check','reveal','next','hint','time-btn'].forEach(id=>$(id).disabled=false);
+        $('finish-actions').hidden = true;
         $('input').focus();
         prefetchNext(3);
         setTimeBtnLabel();
@@ -247,6 +283,9 @@
         $('accepted').innerHTML = '';
         $('input').disabled = true;
         ['check','reveal','next','hint'].forEach(id=>$(id).disabled=true);
+        $('finish-actions').hidden = false;
+        setBest(score);
+        updateBestHome();
       }
 
       function nextCard(){
@@ -256,7 +295,8 @@
         render();
       }
 
-      // --- Vérification / indice ---
+      const lev=(a,b)=>{a=[...norm(a)],b=[...norm(b)];const m=a.length,n=b.length;const d=Array.from({length:m+1},(_,i)=>Array(n+1).fill(0));for(let i=0;i<=m;i++)d[i][0]=i;for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c)}return d[m][n];};
+
       function checkAns(){
         if (finished) return;
         const g = G[order[idx]];
@@ -266,11 +306,21 @@
         $('msg').className = 'msg ' + (ok? 'ok':'bad');
         $('msg').textContent = ok ? 'Correct.' : 'Incorrect.';
         $('live').textContent = $('msg').textContent;
-        if(ok && !correctSet.has(g.k)){ correctSet.add(g.k); score++; $('score').textContent = `Score : ${score}`; }
-        if(!ok){
-          $('accepted').innerHTML = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;
-        } else {
+
+        if(ok && !correctSet.has(g.k)){
+          correctSet.add(g.k);
+          score++;
+          $('score').textContent = `Score : ${score}`;
+          setTimeout(nextCard, 350);
           $('accepted').innerHTML = '';
+        } else if(!ok){
+          const syn = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;
+          let extra = '';
+          if(timePerCard===Infinity){
+            const arr = MNEMS[g.k]||[];
+            if(arr.length){ extra = `<br><span class="hint">Mnémotechnique : ${arr[Math.floor(Math.random()*arr.length)]}</span>`; }
+          }
+          $('accepted').innerHTML = syn + extra;
         }
       }
 
@@ -292,10 +342,6 @@
         $('live').textContent = $('msg').textContent;
       }
 
-      // --- Fuzzy (Levenshtein) ---
-      const lev=(a,b)=>{a=[...norm(a)],b=[...norm(b)];const m=a.length,n=b.length;const d=Array.from({length:m+1},(_,i)=>Array(n+1).fill(0));for(let i=0;i<=m;i++)d[i][0]=i;for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c)}return d[m][n];};
-
-      // --- Écouteurs ---
       $('check').addEventListener('click', checkAns);
       $('reveal').addEventListener('click', reveal);
       $('next').addEventListener('click', nextCard);
@@ -307,11 +353,17 @@
       $('hint').addEventListener('click', showHint);
       $('input').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ checkAns(); }});
 
+      $('restart').addEventListener('click', ()=>{
+        order = shuffleArr([...G.keys()]);
+        idx = 0; score = 0; finished = false; correctSet.clear();
+        render();
+      });
+
       const home = $('home');
       const gf = $('gf');
       const crumbs = $('breadcrumbs');
       $('open-gf').addEventListener('click', ()=>{ home.hidden = true; gf.hidden = false; crumbs.textContent='Flashcards GF'; render(); });
-      $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; clearInterval(tId); });
+      $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; clearInterval(tId); updateBestHome(); });
 
       document.addEventListener('keydown', (e)=>{
         if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
@@ -332,9 +384,8 @@
       window.addEventListener('error', ()=>toast('Erreur script — vérifie la dernière modif'));
       window.addEventListener('unhandledrejection', ()=>toast('Erreur promesse — check console'));
 
-      function shuffleArr(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
-
-      // init
+      updateBestHome();
+      (function sw(){ if ('serviceWorker' in navigator) { const swCode=`self.addEventListener('install',e=>{e.waitUntil(caches.open('etude-v1').then(c=>c.addAll(['./'])))});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))})`; const blob=new Blob([swCode],{type:'text/javascript'}); const url=URL.createObjectURL(blob); navigator.serviceWorker.register(url).catch(()=>{}); }})();
       setTimeBtnLabel();
     })();
   </script>
