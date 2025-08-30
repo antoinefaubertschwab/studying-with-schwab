@@ -135,6 +135,18 @@
           </div>
           <span class="pill" id="best-pill" style="margin-left:auto">Meilleur : 0/18</span>
         </button>
+           <button class="app" id="open-inverse" type="button">
+          <div class="icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/>
+              <path d="M12 6 V18 M6 12 H18" stroke="currentColor"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <div class="title">Mode inverse — Construire</div>
+            <div class="desc">Glisse atomes et liaisons pour former le groupe</div>
+          </div>
+        </button>
         <button class="app" type="button" disabled style="opacity:.6;cursor:not-allowed">
           <div class="icon">
             <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -191,6 +203,34 @@
       <div class="row" id="finish-actions" hidden>
         <button class="btn" id="restart" type="button">Recommencer le quiz</button>
       </div>
+    </section>
+     <section id="builder" hidden>
+      <div class="bar">
+        <button class="btn ghost back" id="back-home-builder" type="button" aria-label="Retour à l'accueil">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Accueil
+        </button>
+        <div class="pill">Mode inverse</div>
+      </div>
+
+      <h2 style="margin:0 0 6px 0;font-size:20px">Construis : <span id="inv-target"></span></h2>
+      <p class="sub" style="margin-bottom:12px">Glisse les atomes et choisis la liaison.</p>
+
+      <div id="bond-tools" class="row">
+        <span class="pill">Liaison :</span>
+        <button class="btn" data-bond="1" type="button">-</button>
+        <button class="btn" data-bond="2" type="button">=</button>
+        <button class="btn" data-bond="3" type="button">≡</button>
+      </div>
+
+      <div id="palette" class="row">
+        <div class="atom" data-atom="C">C</div>
+        <div class="atom" data-atom="O">O</div>
+        <div class="atom" data-atom="N">N</div>
+        <div class="atom" data-atom="H">H</div>
+      </div>
+
+      <div id="workspace" class="card" style="height:400px"><svg id="bonds" width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none"></svg></div>
     </section>
   </div>
 
@@ -428,9 +468,90 @@
 
       const home = $('home');
       const gf = $('gf');
+      const builder = $('builder');
       const crumbs = $('breadcrumbs');
       $('open-gf').addEventListener('click', ()=>{ home.hidden = true; gf.hidden = false; crumbs.textContent='Flashcards GF'; render(); });
       $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; clearInterval(tId); updateBestHome(); });
+      $('open-inverse').addEventListener('click', ()=>{ home.hidden = true; builder.hidden = false; crumbs.textContent='Mode inverse'; startInverse(); });
+      $('back-home-builder').addEventListener('click', ()=>{ builder.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; });
+
+      let currentBond = 1;
+      const workspace = $('workspace');
+      let bondSvg = $('bonds');
+
+      function startInverse(){
+        const g = G[Math.floor(Math.random()*G.length)];
+        $('inv-target').textContent = g.l;
+        workspace.innerHTML = '<svg id="bonds" width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none"></svg>';
+        bondSvg = $('bonds');
+      }
+
+      document.querySelectorAll('#bond-tools button').forEach(btn=>{
+        btn.addEventListener('click', ()=>{ currentBond = +btn.dataset.bond; });
+      });
+
+      document.querySelectorAll('#palette .atom').forEach(a=>{
+        a.addEventListener('pointerdown', e=>startDragFromPalette(a.dataset.atom, e));
+      });
+
+      function startDragFromPalette(type, e){
+        const el = document.createElement('div');
+        el.className = 'atom';
+        el.textContent = type;
+        workspace.appendChild(el);
+        el.style.position = 'absolute';
+        const rect = workspace.getBoundingClientRect();
+        const move=(x,y)=>{ el.style.left=(x-rect.left-20)+"px"; el.style.top=(y-rect.top-20)+"px"; };
+        move(e.clientX,e.clientY);
+        function onMove(ev){ move(ev.clientX,ev.clientY); }
+        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); finalizeAtom(el); }
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp);
+        e.preventDefault();
+      }
+
+      function finalizeAtom(el){
+        const atoms=[...workspace.querySelectorAll('.atom')].filter(x=>x!==el);
+        let nearest=null, distMin=Infinity;
+        const ex=parseFloat(el.style.left), ey=parseFloat(el.style.top);
+        atoms.forEach(a=>{
+          const ax=parseFloat(a.style.left), ay=parseFloat(a.style.top);
+          const d=Math.hypot(ax-ex, ay-ey);
+          if(d<distMin){distMin=d; nearest=a;}
+        });
+        if(nearest && distMin<60){
+          const ax=parseFloat(nearest.style.left), ay=parseFloat(nearest.style.top);
+          const dx=ex-ax, dy=ey-ay;
+          let nx, ny;
+          if(Math.abs(dx)>Math.abs(dy)){
+            nx=dx>0? ax+60: ax-60; ny=ay;
+          } else {
+            nx=ax; ny=dy>0? ay+60: ay-60;
+          }
+          el.style.left=nx+'px';
+          el.style.top=ny+'px';
+          drawBond(nearest, el, currentBond);
+        }
+      }
+
+      function drawBond(a,b,o){
+        const x1=parseFloat(a.style.left)+20, y1=parseFloat(a.style.top)+20;
+        const x2=parseFloat(b.style.left)+20, y2=parseFloat(b.style.top)+20;
+        const len=Math.hypot(x2-x1,y2-y1);
+        for(let i=0;i<o;i++){
+          const offset=(i-(o-1)/2)*4;
+          const ox=-(y2-y1)/len*offset;
+          const oy=(x2-x1)/len*offset;
+          const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+          line.setAttribute('x1', x1+ox);
+          line.setAttribute('y1', y1+oy);
+          line.setAttribute('x2', x2+ox);
+          line.setAttribute('y2', y2+oy);
+          line.setAttribute('stroke', '#000');
+          line.setAttribute('stroke-width', 2);
+          bondSvg.appendChild(line);
+        }
+      }
 
       document.addEventListener('keydown', (e)=>{
         if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
