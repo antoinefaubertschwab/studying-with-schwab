@@ -97,6 +97,10 @@
     #zoom{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:24px;z-index:50}
     #zoomInner{background:#fff;border-radius:12px;max-width:960px;width:100%;padding:16px}
     #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:10px;display:none;z-index:60}
+        #palette{display:flex;gap:8px}
+    .atom{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;background:var(--card);border:1px solid var(--border);cursor:grab}
+    #workspace{position:relative;overflow:hidden}
+    #bond-tools .btn{padding:6px 10px}
   </style>
 </head>
 <body>
@@ -135,7 +139,7 @@
           </div>
           <span class="pill" id="best-pill" style="margin-left:auto">Meilleur : 0/18</span>
         </button>
-           <button class="app" id="open-inverse" type="button">
+          <button class="app" id="open-inverse" type="button">
           <div class="icon">
             <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/>
@@ -202,6 +206,46 @@
 
       <div class="row" id="finish-actions" hidden>
         <button class="btn" id="restart" type="button">Recommencer le quiz</button>
+      </div>
+    </section>
+      <section id="builder" hidden>
+      <div class="bar">
+        <button class="btn ghost back" id="back-home-builder" type="button" aria-label="Retour à l'accueil">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Accueil
+        </button>
+        <div class="pill">Mode inverse</div>
+        <div class="pill" id="inv-score">0/0</div>
+      </div>
+
+      <h2 style="margin:0 0 6px 0;font-size:20px">Construis : <span id="inv-target"></span></h2>
+      <p class="sub" style="margin-bottom:12px">Glisse les atomes et choisis la liaison.</p>
+
+      <div id="bond-tools" class="row">
+        <span class="pill">Liaison :</span>
+        <button class="btn" data-bond="1" type="button">-</button>
+        <button class="btn" data-bond="2" type="button">=</button>
+        <button class="btn" data-bond="3" type="button">≡</button>
+      </div>
+
+      <div id="palette" class="row">
+        <div class="atom" data-atom="C">C</div>
+        <div class="atom" data-atom="O">O</div>
+        <div class="atom" data-atom="N">N</div>
+        <div class="atom" data-atom="H">H</div>
+        <div class="atom" data-atom="R">R</div>
+        <div class="atom" data-atom="R'">R'</div>
+      </div>
+
+      <div id="workspace" class="card" style="height:400px"><svg id="bonds" width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none"></svg></div>
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="show-answer" type="button">Voir la solution</button>
+      </div>
+      <div id="answer-box" class="svgwrap" hidden></div>
+      <div class="row" id="self-eval" hidden>
+        <button class="btn ok" id="self-right" type="button">J'avais raison</button>
+        <button class="btn bad" id="self-wrong" type="button">Je me suis trompé</button>
       </div>
     </section>
      <section id="builder" hidden>
@@ -472,16 +516,22 @@
       const crumbs = $('breadcrumbs');
       $('open-gf').addEventListener('click', ()=>{ home.hidden = true; gf.hidden = false; crumbs.textContent='Flashcards GF'; render(); });
       $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; clearInterval(tId); updateBestHome(); });
-      $('open-inverse').addEventListener('click', ()=>{ home.hidden = true; builder.hidden = false; crumbs.textContent='Mode inverse'; startInverse(); });
+          $('open-inverse').addEventListener('click', ()=>{ home.hidden = true; builder.hidden = false; crumbs.textContent='Mode inverse'; startInverse(); });
       $('back-home-builder').addEventListener('click', ()=>{ builder.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; });
 
       let currentBond = 1;
       const workspace = $('workspace');
       let bondSvg = $('bonds');
+      let currentTarget;
+      let invCorrect = 0, invTotal = 0;
+
+      const bonds = [];
+
+      function updateScore(){ $('inv-score').textContent = `${invCorrect}/${invTotal}`; }
 
       function startInverse(){
-        const g = G[Math.floor(Math.random()*G.length)];
-        $('inv-target').textContent = g.l;
+        currentTarget = G[Math.floor(Math.random()*G.length)];
+        $('inv-target').textContent = currentTarget.l;
         workspace.innerHTML = '<svg id="bonds" width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none"></svg>';
         bondSvg = $('bonds');
       }
@@ -494,49 +544,65 @@
         a.addEventListener('pointerdown', e=>startDragFromPalette(a.dataset.atom, e));
       });
 
+      function makeAtom(type){
+        const el=document.createElement('div');
+        el.className='atom';
+        el.textContent=type;
+        el.dataset.atom=type;
+        el.style.position='absolute';
+        el.links=[];
+        el.addEventListener('pointerdown', ev=>dragAtom(el, ev, false));
+        return el;
+      }
+
       function startDragFromPalette(type, e){
-        const el = document.createElement('div');
-        el.className = 'atom';
-        el.textContent = type;
+        const el = makeAtom(type);
         workspace.appendChild(el);
-        el.style.position = 'absolute';
+        dragAtom(el, e, true);
+      }
+
+      function dragAtom(el, e, isNew){
         const rect = workspace.getBoundingClientRect();
-        const move=(x,y)=>{ el.style.left=(x-rect.left-20)+"px"; el.style.top=(y-rect.top-20)+"px"; };
+        const move=(x,y)=>{ el.style.left=(x-rect.left-24)+"px"; el.style.top=(y-rect.top-24)+"px"; updateLinks(el); };
         move(e.clientX,e.clientY);
         function onMove(ev){ move(ev.clientX,ev.clientY); }
-        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); finalizeAtom(el); }
+        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); finalizeAtom(el, isNew); }
         document.addEventListener('pointermove', onMove);
         document.addEventListener('pointerup', onUp);
         e.preventDefault();
       }
 
-      function finalizeAtom(el){
-        const atoms=[...workspace.querySelectorAll('.atom')].filter(x=>x!==el);
-        let nearest=null, distMin=Infinity;
-        const ex=parseFloat(el.style.left), ey=parseFloat(el.style.top);
-        atoms.forEach(a=>{
-          const ax=parseFloat(a.style.left), ay=parseFloat(a.style.top);
-          const d=Math.hypot(ax-ex, ay-ey);
-          if(d<distMin){distMin=d; nearest=a;}
-        });
-        if(nearest && distMin<60){
-          const ax=parseFloat(nearest.style.left), ay=parseFloat(nearest.style.top);
-          const dx=ex-ax, dy=ey-ay;
-          let nx, ny;
-          if(Math.abs(dx)>Math.abs(dy)){
-            nx=dx>0? ax+60: ax-60; ny=ay;
-          } else {
-            nx=ax; ny=dy>0? ay+60: ay-60;
+      function finalizeAtom(el, isNew){
+        if(isNew){
+          const atoms=[...workspace.querySelectorAll('.atom')].filter(x=>x!==el);
+          let nearest=null, distMin=Infinity;
+          const ex=parseFloat(el.style.left), ey=parseFloat(el.style.top);
+          atoms.forEach(a=>{
+            const ax=parseFloat(a.style.left), ay=parseFloat(a.style.top);
+            const d=Math.hypot(ax-ex, ay-ey);
+            if(d<distMin){distMin=d; nearest=a;}
+          });
+          if(nearest && distMin<60){
+            const ax=parseFloat(nearest.style.left), ay=parseFloat(nearest.style.top);
+            const dx=ex-ax, dy=ey-ay;
+            let nx, ny;
+            if(Math.abs(dx)>Math.abs(dy)){
+              nx=dx>0? ax+60: ax-60; ny=ay;
+            } else {
+              nx=ax; ny=dy>0? ay+60: ay-60;
+            }
+            el.style.left=nx+'px';
+            el.style.top=ny+'px';
+            drawBond(nearest, el, currentBond);
           }
-          el.style.left=nx+'px';
-          el.style.top=ny+'px';
-          drawBond(nearest, el, currentBond);
         }
+        updateLinks(el);
       }
 
       function drawBond(a,b,o){
-        const x1=parseFloat(a.style.left)+20, y1=parseFloat(a.style.top)+20;
-        const x2=parseFloat(b.style.left)+20, y2=parseFloat(b.style.top)+20;
+        const bond={a,b,o,lines:[]};
+        const x1=parseFloat(a.style.left)+24, y1=parseFloat(a.style.top)+24;
+        const x2=parseFloat(b.style.left)+24, y2=parseFloat(b.style.top)+24;
         const len=Math.hypot(x2-x1,y2-y1);
         for(let i=0;i<o;i++){
           const offset=(i-(o-1)/2)*4;
@@ -550,8 +616,50 @@
           line.setAttribute('stroke', '#000');
           line.setAttribute('stroke-width', 2);
           bondSvg.appendChild(line);
+          bond.lines.push(line);
         }
+        bonds.push(bond);
+        a.links.push(bond);
+        b.links.push(bond);
       }
+
+      function updateLinks(atom){
+        atom.links.forEach(bnd=>{
+          const {a,b:other,o,lines}=bnd;
+          const x1=parseFloat(a.style.left)+24, y1=parseFloat(a.style.top)+24;
+          const x2=parseFloat(other.style.left)+24, y2=parseFloat(other.style.top)+24;
+          const len=Math.hypot(x2-x1,y2-y1);
+          lines.forEach((line,i)=>{
+            const offset=(i-(o-1)/2)*4;
+            const ox=-(y2-y1)/len*offset;
+            const oy=(x2-x1)/len*offset;
+            line.setAttribute('x1', x1+ox);
+            line.setAttribute('y1', y1+oy);
+            line.setAttribute('x2', x2+ox);
+            line.setAttribute('y2', y2+oy);
+          });
+        });
+      }
+
+      $('show-answer').addEventListener('click', ()=>{
+        const src = imgHrefOf(currentTarget);
+        $('answer-box').innerHTML = src ? `<img src="${src}" alt="" style="display:block;max-width:100%;height:auto">` : benzene();
+        $('answer-box').hidden = false;
+        $('self-eval').hidden = false;
+        $('show-answer').disabled = true;
+      });
+
+      $('self-right').addEventListener('click', ()=>{ invCorrect++; invTotal++; updateScore(); nextInverse(); });
+      $('self-wrong').addEventListener('click', ()=>{ invTotal++; updateScore(); nextInverse(); });
+
+      function nextInverse(){
+        $('answer-box').hidden = true;
+        $('self-eval').hidden = true;
+        $('show-answer').disabled = false;
+        startInverse();
+      }
+
+
 
       document.addEventListener('keydown', (e)=>{
         if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
