@@ -231,8 +231,8 @@
         <div class="atom" data-atom="C">C</div>
         <div class="atom" data-atom="O">O</div>
         <div class="atom" data-atom="N">N</div>
-        <div class="atom" data-atom="H">H</div
-        ><div class="atom" data-atom="R">R</div>
+        <div class="atom" data-atom="H">H</div>
+        <div class="atom" data-atom="R">R</div>
         <div class="atom" data-atom="R'">R'</div>
       </div>
 
@@ -285,7 +285,7 @@
       const benzene = (cx=160,cy=90,r=38)=>{
         let pts=[];
         for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}
-        return `<svg viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts.map(p=>p.join(',')).join('')}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+        return `<svg viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
       };
 
       const S = (w=360,h=180)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">`;
@@ -298,18 +298,18 @@
         {k:'aldehyde', l:'Aldéhyde', a:['aldehyde','aldéhyde'], d:()=> S(360,180)+`<image href="./gf_imgs/aldehyde.png" xlink:href="./gf_imgs/aldehyde.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(360,180)+`<image href="./gf_imgs/ketone.png" xlink:href="./gf_imgs/ketone.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'carboxylique', l:'Acide carboxylique', a:['acide carboxylique','carboxylique','carboxylic acid'], d:()=> S(360,180)+`<image href="./gf_imgs/carboxylique.png" xlink:href="./gf_imgs/carboxylique.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'ester', l:'Ester', a:['ester'], d: ()=> S(360,180)+`<image href="./gf_imgs/ester.png" xlink:href="./gf_imgs/ester.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'amide', l:'Amide', a:['amide'], d: ()=> S(360,180)+`<image href="./gf_imgs/amide.png" xlink:href="./gf_imgs/amide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d: ()=> S(360,180)+`<image href="./gf_imgs/anhydride.png" xlink:href="./gf_imgs/anhydride.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride',"chlorure d'acyle"], d: ()=> S(360,180)+`<image href="./gf_imgs/acylhalide.png" xlink:href="./gf_imgs/acylhalide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'amine', l:'Amine', a:['amine','amino'], d: ()=> S(360,180)+`<image href="./gf_imgs/amine.png" xlink:href="./gf_imgs/amine.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d: ()=> S(360,180)+`<image href="./gf_imgs/nitrile.png" xlink:href="./gf_imgs/nitrile.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:=> S(360,180)+`<image href="./gf_imgs/haloalkane.png" xlink:href="./gf_imgs/haloalkane.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d: ()=> S(360,180)+`<image href="./gf_imgs/nitro.png" xlink:href="./gf_imgs/nitro.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d: ()=> S(360,180)+`<image href="./gf_imgs/thiol.png" xlink:href="./gf_imgs/thiol.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d: ()=> S(360,180)+`<image href="./gf_imgs/alkene.png" xlink:href="./gf_imgs/alkene.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'alkyne', l:'Alcyne', a:['alcyne','alkyne'], d: ()=> S(360,180)+`<image href="./gf_imgs/alkyne.png" xlink:href="./gf_imgs/alkyne.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d: ()=> S(360,180)+`<image href="./gf_imgs/aromatic.png" xlink:href="./gf_imgs/aromatic.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'ester', l:'Ester', a:['ester'], d:()=> S(360,180)+`<image href="./gf_imgs/ester.png" xlink:href="./gf_imgs/ester.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'amide', l:'Amide', a:['amide'], d:()=> S(360,180)+`<image href="./gf_imgs/amide.png" xlink:href="./gf_imgs/amide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d:()=> S(360,180)+`<image href="./gf_imgs/anhydride.png" xlink:href="./gf_imgs/anhydride.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride',"chlorure d'acyle"], d:()=> S(360,180)+`<image href="./gf_imgs/acylhalide.png" xlink:href="./gf_imgs/acylhalide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'amine', l:'Amine', a:['amine','amino'], d:()=> S(360,180)+`<image href="./gf_imgs/amine.png" xlink:href="./gf_imgs/amine.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d:()=> S(360,180)+`<image href="./gf_imgs/nitrile.png" xlink:href="./gf_imgs/nitrile.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:()=> S(360,180)+`<image href="./gf_imgs/haloalkane.png" xlink:href="./gf_imgs/haloalkane.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d:()=> S(360,180)+`<image href="./gf_imgs/nitro.png" xlink:href="./gf_imgs/nitro.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:()=> S(360,180)+`<image href="./gf_imgs/thiol.png" xlink:href="./gf_imgs/thiol.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d:()=> S(360,180)+`<image href="./gf_imgs/alkene.png" xlink:href="./gf_imgs/alkene.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'alkyne', l:'Alcyne', a:['alcyne','alkyne'], d:()=> S(360,180)+`<image href="./gf_imgs/alkyne.png" xlink:href="./gf_imgs/alkyne.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> S(360,180)+`<image href="./gf_imgs/aromatic.png" xlink:href="./gf_imgs/aromatic.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
       ];
 
       const MNEMS = {
@@ -597,6 +597,7 @@
         a.links.push(bond);
         b.links.push(bond);
       }
+
       function updateLinks(atom){
         atom.links.forEach(bnd=>{
           const {a,b:other,o,lines}=bnd;
