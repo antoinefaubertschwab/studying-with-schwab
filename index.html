@@ -97,7 +97,7 @@
     #zoom{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:24px;z-index:50}
     #zoomInner{background:#fff;border-radius:12px;max-width:960px;width:100%;padding:16px}
     #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:10px;display:none;z-index:60}
-        #palette{display:flex;gap:8px}
+    #palette{display:flex;gap:8px}
     .atom{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;background:var(--card);border:1px solid var(--border);cursor:grab}
     #workspace{position:relative;overflow:hidden}
     #bond-tools .btn{padding:6px 10px}
@@ -139,7 +139,7 @@
           </div>
           <span class="pill" id="best-pill" style="margin-left:auto">Meilleur : 0/18</span>
         </button>
-          <button class="app" id="open-inverse" type="button">
+        <button class="app" id="open-inverse" type="button">
           <div class="icon">
             <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/>
@@ -197,7 +197,6 @@
           <button class="btn" id="next" type="button">Suivant</button>
         </div>
       </div>
-
       <p class="sub" style="margin-top:6px">Raccourcis : Enter=Vérifier · R=Révéler · N=Suivant · M=Mélanger</p>
 
       <div id="msg"></div>
@@ -208,7 +207,7 @@
         <button class="btn" id="restart" type="button">Recommencer le quiz</button>
       </div>
     </section>
-      <section id="builder" hidden>
+    <section id="builder" hidden>
       <div class="bar">
         <button class="btn ghost back" id="back-home-builder" type="button" aria-label="Retour à l'accueil">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -232,8 +231,8 @@
         <div class="atom" data-atom="C">C</div>
         <div class="atom" data-atom="O">O</div>
         <div class="atom" data-atom="N">N</div>
-        <div class="atom" data-atom="H">H</div>
-        <div class="atom" data-atom="R">R</div>
+        <div class="atom" data-atom="H">H</div
+        ><div class="atom" data-atom="R">R</div>
         <div class="atom" data-atom="R'">R'</div>
       </div>
 
@@ -247,34 +246,6 @@
         <button class="btn ok" id="self-right" type="button">J'avais raison</button>
         <button class="btn bad" id="self-wrong" type="button">Je me suis trompé</button>
       </div>
-    </section>
-     <section id="builder" hidden>
-      <div class="bar">
-        <button class="btn ghost back" id="back-home-builder" type="button" aria-label="Retour à l'accueil">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Accueil
-        </button>
-        <div class="pill">Mode inverse</div>
-      </div>
-
-      <h2 style="margin:0 0 6px 0;font-size:20px">Construis : <span id="inv-target"></span></h2>
-      <p class="sub" style="margin-bottom:12px">Glisse les atomes et choisis la liaison.</p>
-
-      <div id="bond-tools" class="row">
-        <span class="pill">Liaison :</span>
-        <button class="btn" data-bond="1" type="button">-</button>
-        <button class="btn" data-bond="2" type="button">=</button>
-        <button class="btn" data-bond="3" type="button">≡</button>
-      </div>
-
-      <div id="palette" class="row">
-        <div class="atom" data-atom="C">C</div>
-        <div class="atom" data-atom="O">O</div>
-        <div class="atom" data-atom="N">N</div>
-        <div class="atom" data-atom="H">H</div>
-      </div>
-
-      <div id="workspace" class="card" style="height:400px"><svg id="bonds" width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none"></svg></div>
     </section>
   </div>
 
@@ -314,7 +285,7 @@
       const benzene = (cx=160,cy=90,r=38)=>{
         let pts=[];
         for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}
-        return `<svg viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+        return `<svg viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts.map(p=>p.join(',')).join('')}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${cx}" cy="${cy}" r="${r-12}" fill="none" stroke="#111" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
       };
 
       const S = (w=360,h=180)=>`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">`;
@@ -327,18 +298,18 @@
         {k:'aldehyde', l:'Aldéhyde', a:['aldehyde','aldéhyde'], d:()=> S(360,180)+`<image href="./gf_imgs/aldehyde.png" xlink:href="./gf_imgs/aldehyde.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'ketone', l:'Cétone', a:['cétone','cetone','ketone'], d:()=> S(360,180)+`<image href="./gf_imgs/ketone.png" xlink:href="./gf_imgs/ketone.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
         {k:'carboxylique', l:'Acide carboxylique', a:['acide carboxylique','carboxylique','carboxylic acid'], d:()=> S(360,180)+`<image href="./gf_imgs/carboxylique.png" xlink:href="./gf_imgs/carboxylique.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'ester', l:'Ester', a:['ester'], d:()=> S(360,180)+`<image href="./gf_imgs/ester.png" xlink:href="./gf_imgs/ester.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'amide', l:'Amide', a:['amide'], d:()=> S(360,180)+`<image href="./gf_imgs/amide.png" xlink:href="./gf_imgs/amide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d:()=> S(360,180)+`<image href="./gf_imgs/anhydride.png" xlink:href="./gf_imgs/anhydride.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride',"chlorure d'acyle"], d:()=> S(360,180)+`<image href="./gf_imgs/acylhalide.png" xlink:href="./gf_imgs/acylhalide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'amine', l:'Amine', a:['amine','amino'], d:()=> S(360,180)+`<image href="./gf_imgs/amine.png" xlink:href="./gf_imgs/amine.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d:()=> S(360,180)+`<image href="./gf_imgs/nitrile.png" xlink:href="./gf_imgs/nitrile.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:()=> S(360,180)+`<image href="./gf_imgs/haloalkane.png" xlink:href="./gf_imgs/haloalkane.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d:()=> S(360,180)+`<image href="./gf_imgs/nitro.png" xlink:href="./gf_imgs/nitro.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:()=> S(360,180)+`<image href="./gf_imgs/thiol.png" xlink:href="./gf_imgs/thiol.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d:()=> S(360,180)+`<image href="./gf_imgs/alkene.png" xlink:href="./gf_imgs/alkene.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'alkyne', l:'Alcyne', a:['alcyne','alkyne'], d:()=> S(360,180)+`<image href="./gf_imgs/alkyne.png" xlink:href="./gf_imgs/alkyne.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
-        {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:()=> S(360,180)+`<image href="./gf_imgs/aromatic.png" xlink:href="./gf_imgs/aromatic.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'ester', l:'Ester', a:['ester'], d:=> S(360,180)+`<image href="./gf_imgs/ester.png" xlink:href="./gf_imgs/ester.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'amide', l:'Amide', a:['amide'], d:=> S(360,180)+`<image href="./gf_imgs/amide.png" xlink:href="./gf_imgs/amide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'anhydride', l:"Anhydride d'acide", a:['anhydride',"anhydride d'acide",'acid anhydride'], d:=> S(360,180)+`<image href="./gf_imgs/anhydride.png" xlink:href="./gf_imgs/anhydride.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'acylhalide', l:"Halogénure d'acyle", a:["halogénure d'acyle",'acyl halide','acyl chloride',"chlorure d'acyle"], d:=> S(360,180)+`<image href="./gf_imgs/acylhalide.png" xlink:href="./gf_imgs/acylhalide.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'amine', l:'Amine', a:['amine','amino'], d:=> S(360,180)+`<image href="./gf_imgs/amine.png" xlink:href="./gf_imgs/amine.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'nitrile', l:'Nitrile', a:['nitrile','cyano'], d:=> S(360,180)+`<image href="./gf_imgs/nitrile.png" xlink:href="./gf_imgs/nitrile.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'haloalkane', l:'Halogénoalcane', a:["halogénoalcane","halogénure d'alkyle",'alkyl halide','haloalcane','halogene'], d:=> S(360,180)+`<image href="./gf_imgs/haloalkane.png" xlink:href="./gf_imgs/haloalkane.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'nitro', l:'Nitro', a:['nitro','groupe nitro'], d:=> S(360,180)+`<image href="./gf_imgs/nitro.png" xlink:href="./gf_imgs/nitro.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'thiol', l:'Thiol', a:['thiol','mercaptan'], d:=> S(360,180)+`<image href="./gf_imgs/thiol.png" xlink:href="./gf_imgs/thiol.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'alkene', l:'Alcène', a:['alcene','alcène','alkene'], d:=> S(360,180)+`<image href="./gf_imgs/alkene.png" xlink:href="./gf_imgs/alkene.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'alkyne', l:'Alcyne', a:['alcyne','alkyne'], d:=> S(360,180)+`<image href="./gf_imgs/alkyne.png" xlink:href="./gf_imgs/alkyne.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
+        {k:'aromatic', l:'Aromatique (arène)', a:['aromatique','arène','arene','benzene','benzène'], d:=> S(360,180)+`<image href="./gf_imgs/aromatic.png" xlink:href="./gf_imgs/aromatic.png" x="0" y="0" width="360" height="180" preserveAspectRatio="xMidYMid meet" />`+E},
       ];
 
       const MNEMS = {
@@ -516,7 +487,8 @@
       const crumbs = $('breadcrumbs');
       $('open-gf').addEventListener('click', ()=>{ home.hidden = true; gf.hidden = false; crumbs.textContent='Flashcards GF'; render(); });
       $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; clearInterval(tId); updateBestHome(); });
-          $('open-inverse').addEventListener('click', ()=>{ home.hidden = true; builder.hidden = false; crumbs.textContent='Mode inverse'; startInverse(); });
+
+      $('open-inverse').addEventListener('click', ()=>{ home.hidden = true; builder.hidden = false; crumbs.textContent='Mode inverse'; startInverse(); });
       $('back-home-builder').addEventListener('click', ()=>{ builder.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; });
 
       let currentBond = 1;
@@ -551,50 +523,53 @@
         el.dataset.atom=type;
         el.style.position='absolute';
         el.links=[];
-        el.addEventListener('pointerdown', ev=>dragAtom(el, ev, false));
+        el.addEventListener('pointerdown', ev=>dragAtom(el, ev));
         return el;
       }
 
       function startDragFromPalette(type, e){
         const el = makeAtom(type);
         workspace.appendChild(el);
-        dragAtom(el, e, true);
+        dragAtom(el, e);
       }
 
-      function dragAtom(el, e, isNew){
+      function dragAtom(el, e){
         const rect = workspace.getBoundingClientRect();
         const move=(x,y)=>{ el.style.left=(x-rect.left-24)+"px"; el.style.top=(y-rect.top-24)+"px"; updateLinks(el); };
         move(e.clientX,e.clientY);
         function onMove(ev){ move(ev.clientX,ev.clientY); }
-        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); finalizeAtom(el, isNew); }
+        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); finalizeAtom(el); }
         document.addEventListener('pointermove', onMove);
         document.addEventListener('pointerup', onUp);
         e.preventDefault();
       }
 
-      function finalizeAtom(el, isNew){
-        if(isNew){
-          const atoms=[...workspace.querySelectorAll('.atom')].filter(x=>x!==el);
-          let nearest=null, distMin=Infinity;
-          const ex=parseFloat(el.style.left), ey=parseFloat(el.style.top);
-          atoms.forEach(a=>{
-            const ax=parseFloat(a.style.left), ay=parseFloat(a.style.top);
-            const d=Math.hypot(ax-ex, ay-ey);
-            if(d<distMin){distMin=d; nearest=a;}
-          });
-          if(nearest && distMin<60){
-            const ax=parseFloat(nearest.style.left), ay=parseFloat(nearest.style.top);
-            const dx=ex-ax, dy=ey-ay;
-            let nx, ny;
-            if(Math.abs(dx)>Math.abs(dy)){
-              nx=dx>0? ax+60: ax-60; ny=ay;
-            } else {
-              nx=ax; ny=dy>0? ay+60: ay-60;
-            }
-            el.style.left=nx+'px';
-            el.style.top=ny+'px';
-            drawBond(nearest, el, currentBond);
+      function hasBond(a,b){
+        return bonds.some(bnd => (bnd.a===a && bnd.b===b) || (bnd.a===b && bnd.b===a));
+      }
+
+      function finalizeAtom(el){
+        const atoms=[...workspace.querySelectorAll('.atom')].filter(x=>x!==el);
+        let nearest=null, distMin=Infinity;
+        const ex=parseFloat(el.style.left), ey=parseFloat(el.style.top);
+        atoms.forEach(a=>{
+          const ax=parseFloat(a.style.left), ay=parseFloat(a.style.top);
+          const d=Math.hypot(ax-ex, ay-ey);
+          if(d<distMin){distMin=d; nearest=a;}
+        });
+        if(nearest && distMin<60){
+          const ax=parseFloat(nearest.style.left), ay=parseFloat(nearest.style.top);
+          const dx=ex-ax, dy=ey-ay;
+          let nx, ny;
+          if(Math.abs(dx)>Math.abs(dy)){
+            nx=dx>0? ax+60: ax-60; ny=ay;
+          } else {
+            nx=ax; ny=dy>0? ay+60: ay-60;
           }
+          el.style.left=nx+'px';
+          el.style.top=ny+'px';
+          if(!hasBond(nearest, el)) drawBond(nearest, el, currentBond);
+          updateLinks(nearest);
         }
         updateLinks(el);
       }
@@ -622,7 +597,6 @@
         a.links.push(bond);
         b.links.push(bond);
       }
-
       function updateLinks(atom){
         atom.links.forEach(bnd=>{
           const {a,b:other,o,lines}=bnd;
@@ -658,8 +632,6 @@
         $('show-answer').disabled = false;
         startInverse();
       }
-
-
 
       document.addEventListener('keydown', (e)=>{
         if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
