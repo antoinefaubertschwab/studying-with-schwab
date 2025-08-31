@@ -101,6 +101,7 @@
     .atom{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;background:var(--card);border:1px solid var(--border);cursor:grab}
     #workspace{position:relative;overflow:hidden}
     #bond-tools .btn{padding:6px 10px}
+    #bond-tools .btn.active{background:var(--brand);color:#fff}
   </style>
 </head>
 <body>
@@ -197,6 +198,7 @@
           <button class="btn" id="next" type="button">Suivant</button>
         </div>
       </div>
+
       <p class="sub" style="margin-top:6px">Raccourcis : Enter=Vérifier · R=Révéler · N=Suivant · M=Mélanger</p>
 
       <div id="msg"></div>
@@ -214,7 +216,8 @@
           Accueil
         </button>
         <div class="pill">Mode inverse</div>
-        <div class="pill" id="inv-score">0/0</div>
+        <div class="pill" id="inv-prog">0/18</div>
+        <div class="pill" id="inv-score">Score : 0</div>
       </div>
 
       <h2 style="margin:0 0 6px 0;font-size:20px">Construis : <span id="inv-target"></span></h2>
@@ -243,8 +246,12 @@
       </div>
       <div id="answer-box" class="svgwrap" hidden></div>
       <div class="row" id="self-eval" hidden>
-        <button class="btn ok" id="self-right" type="button">J'avais raison</button>
-        <button class="btn bad" id="self-wrong" type="button">Je me suis trompé</button>
+        <button class="btn ok" id="self-right" type="button">J'avais raison</button
+        ><button class="btn bad" id="self-wrong" type="button">Je me suis trompé</button>
+      </div>
+      <div id="inv-msg"></div>
+      <div class="row" id="inv-finish" hidden>
+        <button class="btn" id="inv-restart" type="button">Recommencer le quiz</button>
       </div>
     </section>
   </div>
@@ -488,28 +495,51 @@
       $('open-gf').addEventListener('click', ()=>{ home.hidden = true; gf.hidden = false; crumbs.textContent='Flashcards GF'; render(); });
       $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; clearInterval(tId); updateBestHome(); });
 
-      $('open-inverse').addEventListener('click', ()=>{ home.hidden = true; builder.hidden = false; crumbs.textContent='Mode inverse'; startInverse(); });
+      $('open-inverse').addEventListener('click', ()=>{
+        home.hidden = true;
+        builder.hidden = false;
+        crumbs.textContent='Mode inverse';
+        invOrder = shuffleArr([...G.keys()]);
+        invIdx = 0;
+        invCorrect = 0;
+        builderFinished = false;
+        updateScore();
+        startInverse();
+      });
       $('back-home-builder').addEventListener('click', ()=>{ builder.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; });
 
       let currentBond = 1;
       const workspace = $('workspace');
       let bondSvg = $('bonds');
       let currentTarget;
-      let invCorrect = 0, invTotal = 0;
+      let invCorrect = 0;
+      let invOrder = shuffleArr([...G.keys()]);
+      let invIdx = 0;
+      let builderFinished = false;
 
       const bonds = [];
 
-      function updateScore(){ $('inv-score').textContent = `${invCorrect}/${invTotal}`; }
+      function updateScore(){ $('inv-score').textContent = `Score : ${invCorrect}`; }
 
       function startInverse(){
-        currentTarget = G[Math.floor(Math.random()*G.length)];
+        if(builderFinished) return;
+        currentTarget = G[invOrder[invIdx]];
         $('inv-target').textContent = currentTarget.l;
+        $('inv-prog').textContent = `${invIdx+1}/${G.length}`;
         workspace.innerHTML = '<svg id="bonds" width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none"></svg>';
         bondSvg = $('bonds');
+        bonds.length = 0;
+        workspace.style.pointerEvents = 'auto';
+        $('palette').style.pointerEvents = 'auto';
       }
 
+      document.querySelector('#bond-tools [data-bond="1"]').classList.add('active');
       document.querySelectorAll('#bond-tools button').forEach(btn=>{
-        btn.addEventListener('click', ()=>{ currentBond = +btn.dataset.bond; });
+        btn.addEventListener('click', ()=>{
+          currentBond = +btn.dataset.bond;
+          document.querySelectorAll('#bond-tools button').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+        });
       });
 
       document.querySelectorAll('#palette .atom').forEach(a=>{
@@ -557,15 +587,12 @@
           const d=Math.hypot(ax-ex, ay-ey);
           if(d<distMin){distMin=d; nearest=a;}
         });
-        if(nearest && distMin<60){
+        if(nearest && distMin<80){
           const ax=parseFloat(nearest.style.left), ay=parseFloat(nearest.style.top);
           const dx=ex-ax, dy=ey-ay;
-          let nx, ny;
-          if(Math.abs(dx)>Math.abs(dy)){
-            nx=dx>0? ax+60: ax-60; ny=ay;
-          } else {
-            nx=ax; ny=dy>0? ay+60: ay-60;
-          }
+          const d=Math.hypot(dx,dy)||1;
+          const nx=ax + dx/d*60;
+          const ny=ay + dy/d*60;
           el.style.left=nx+'px';
           el.style.top=ny+'px';
           if(!hasBond(nearest, el)) drawBond(nearest, el, currentBond);
@@ -624,15 +651,40 @@
         $('show-answer').disabled = true;
       });
 
-      $('self-right').addEventListener('click', ()=>{ invCorrect++; invTotal++; updateScore(); nextInverse(); });
-      $('self-wrong').addEventListener('click', ()=>{ invTotal++; updateScore(); nextInverse(); });
+      $('self-right').addEventListener('click', ()=>{ invCorrect++; updateScore(); nextInverse(); });
+      $('self-wrong').addEventListener('click', ()=>{ nextInverse(); });
 
       function nextInverse(){
         $('answer-box').hidden = true;
         $('self-eval').hidden = true;
         $('show-answer').disabled = false;
-        startInverse();
+        invIdx++;
+        if(invIdx >= G.length){
+          finishInverse();
+        } else {
+          startInverse();
+        }
       }
+
+      function finishInverse(){
+        builderFinished = true;
+        workspace.style.pointerEvents = 'none';
+        $('palette').style.pointerEvents = 'none';
+        $('inv-msg').className = 'msg';
+        $('inv-msg').textContent = `Session terminée — Score : ${invCorrect}/${G.length}`;
+        $('inv-finish').hidden = false;
+      }
+
+      $('inv-restart').addEventListener('click', ()=>{
+        invOrder = shuffleArr([...G.keys()]);
+        invIdx = 0;
+        invCorrect = 0;
+        builderFinished = false;
+        $('inv-msg').textContent='';
+        $('inv-finish').hidden = true;
+        updateScore();
+        startInverse();
+      });
 
       document.addEventListener('keydown', (e)=>{
         if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
