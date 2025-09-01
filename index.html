@@ -99,6 +99,7 @@
     #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:10px;display:none;z-index:60}
     #palette{display:flex;gap:8px}
     .atom{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;background:var(--card);border:1px solid var(--border);cursor:grab}
+    .atom.selected{outline:2px solid var(--brand);}
     #trash{cursor:default;color:var(--muted)}
     #trash.over{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
     #workspace{position:relative;overflow:hidden}
@@ -512,7 +513,6 @@
       });
       $('back-home-builder').addEventListener('click', ()=>{ builder.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; });
 
-      let currentBond = 1;
       const workspace = $('workspace');
       const trash = $('trash');
       let bondSvg = $('bonds');
@@ -546,12 +546,14 @@
         $('palette').style.pointerEvents = 'auto';
       }
 
-      document.querySelector('#bond-tools [data-bond="1"]').classList.add('active');
       document.querySelectorAll('#bond-tools button').forEach(btn=>{
         btn.addEventListener('click', ()=>{
-          currentBond = +btn.dataset.bond;
-          document.querySelectorAll('#bond-tools button').forEach(b=>b.classList.remove('active'));
-          btn.classList.add('active');
+         if(selectedAtoms.length===2 && !hasBond(selectedAtoms[0], selectedAtoms[1])){
+            drawBond(selectedAtoms[0], selectedAtoms[1], +btn.dataset.bond);
+            updateLinks(selectedAtoms[0]);
+            updateLinks(selectedAtoms[1]);
+          }
+          clearSelection();
         });
       });
 
@@ -559,11 +561,13 @@
         a.addEventListener('pointerdown', e=>startDragFromPalette(a.dataset.atom, e));
       });
       $('clear-all').addEventListener('click', clearWorkspace);
+      workspace.addEventListener('click', e=>{ if(!e.target.classList.contains('atom')) clearSelection(); });
 
       function clearWorkspace(){
         [...workspace.querySelectorAll('.atom')].forEach(removeAtom);
         bondSvg.innerHTML='';
         bonds.length=0;
+        clearSelection();
       }
       function makeAtom(type){
         const el=document.createElement('div');
@@ -579,6 +583,9 @@
       function startDragFromPalette(type, e){
         const el = makeAtom(type);
         workspace.appendChild(el);
+        const rect = workspace.getBoundingClientRect();
+        el.style.left=(e.clientX-rect.left-24)+"px";
+        el.style.top=(e.clientY-rect.top-24)+"px";
         dragAtom(el, e);
       }
             function isOverTrash(el){
@@ -594,20 +601,46 @@
           other.links = other.links.filter(l=>l!==bnd);
           bonds.splice(bonds.indexOf(bnd),1);
         });
+                const idx=selectedAtoms.indexOf(el);
+        if(idx>-1){
+          selectedAtoms.splice(idx,1);
+          el.classList.remove('selected');
+        }
         el.remove();
       }
 
 
       function dragAtom(el, e){
         const rect = workspace.getBoundingClientRect();
-        const move=(x,y)=>{ el.style.left=(x-rect.left-24)+"px"; el.style.top=(y-rect.top-24)+"px"; updateLinks(el); trash.classList.toggle('over', isOverTrash(el)); };
-        move(e.clientX,e.clientY);
-        function onMove(ev){ move(ev.clientX,ev.clientY); }
-        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); trash.classList.remove('over'); if(isOverTrash(el)){ removeAtom(el); return; } finalizeAtom(el); }
+                const startX=e.clientX, startY=e.clientY;
+        let dragging=false;
+        function move(x,y){ el.style.left=(x-rect.left-24)+"px"; el.style.top=(y-rect.top-24)+"px"; updateLinks(el); trash.classList.toggle('over', isOverTrash(el)); }
+        function onMove(ev){ if(!dragging && Math.hypot(ev.clientX-startX, ev.clientY-startY)>3) dragging=true; if(dragging) move(ev.clientX,ev.clientY); }
+        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); trash.classList.remove('over'); if(!dragging){ toggleSelect(el); return; } if(isOverTrash(el)){ removeAtom(el); return; } finalizeAtom(el); }
         document.addEventListener('pointermove', onMove);
         document.addEventListener('pointerup', onUp);
         e.preventDefault();
       }
+        function toggleSelect(atom){
+        const idx=selectedAtoms.indexOf(atom);
+        if(idx>-1){
+          selectedAtoms.splice(idx,1);
+          atom.classList.remove('selected');
+        } else {
+          if(selectedAtoms.length===2){
+            selectedAtoms[0].classList.remove('selected');
+            selectedAtoms.shift();
+          }
+          selectedAtoms.push(atom);
+          atom.classList.add('selected');
+        }
+      }
+
+      function clearSelection(){
+        selectedAtoms.forEach(a=>a.classList.remove('selected'));
+        selectedAtoms.length=0;
+      }
+
 
       function hasBond(a,b){
         return bonds.some(bnd => (bnd.a===a && bnd.b===b) || (bnd.a===b && bnd.b===a));
@@ -630,8 +663,6 @@
           const ny=ay + dy/d*60;
           el.style.left=nx+'px';
           el.style.top=ny+'px';
-          if(!hasBond(nearest, el)) drawBond(nearest, el, currentBond);
-          updateLinks(nearest);
         }
         updateLinks(el);
       }
@@ -677,6 +708,10 @@
           });
         });
       }
+        window.addEventListener('resize', ()=>{
+        resizeBondSvg();
+        [...workspace.querySelectorAll('.atom')].forEach(updateLinks);
+      });
 
             window.addEventListener('resize', ()=>{
         resizeBondSvg();
