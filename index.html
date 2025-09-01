@@ -713,11 +713,6 @@
         [...workspace.querySelectorAll('.atom')].forEach(updateLinks);
       });
 
-            window.addEventListener('resize', ()=>{
-        resizeBondSvg();
-        [...workspace.querySelectorAll('.atom')].forEach(updateLinks);
-      });
-
 
       $('show-answer').addEventListener('click', ()=>{
         const src = imgHrefOf(currentTarget);
