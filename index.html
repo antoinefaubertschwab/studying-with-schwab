@@ -99,6 +99,8 @@
     #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:10px;display:none;z-index:60}
     #palette{display:flex;gap:8px}
     .atom{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;background:var(--card);border:1px solid var(--border);cursor:grab}
+    #trash{cursor:default;color:var(--muted)}
+    #trash.over{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
     #workspace{position:relative;overflow:hidden}
     #bond-tools .btn{padding:6px 10px}
     #bond-tools .btn.active{background:var(--brand);color:#fff}
@@ -242,6 +244,8 @@
       <div id="workspace" class="card" style="height:400px"><svg id="bonds" width="100%" height="100%" style="position:absolute;top:0;left:0;pointer-events:none"></svg></div>
 
       <div class="row" style="margin-top:12px">
+        <div id="trash" class="atom" aria-label="Supprimer">🗑️</div>
+        <button class="btn ghost" id="clear-all" type="button">Tout effacer</button>
         <button class="btn" id="show-answer" type="button">Voir la solution</button>
       </div>
       <div id="answer-box" class="svgwrap" hidden></div>
@@ -510,6 +514,7 @@
 
       let currentBond = 1;
       const workspace = $('workspace');
+      const trash = $('trash');
       let bondSvg = $('bonds');
       let currentTarget;
       let invCorrect = 0;
@@ -545,7 +550,13 @@
       document.querySelectorAll('#palette .atom').forEach(a=>{
         a.addEventListener('pointerdown', e=>startDragFromPalette(a.dataset.atom, e));
       });
+      $('clear-all').addEventListener('click', clearWorkspace);
 
+      function clearWorkspace(){
+        [...workspace.querySelectorAll('.atom')].forEach(removeAtom);
+        bondSvg.innerHTML='';
+        bonds.length=0;
+      }
       function makeAtom(type){
         const el=document.createElement('div');
         el.className='atom';
@@ -562,13 +573,29 @@
         workspace.appendChild(el);
         dragAtom(el, e);
       }
+            function isOverTrash(el){
+        const tr = trash.getBoundingClientRect();
+        const er = el.getBoundingClientRect();
+        return !(er.right < tr.left || er.left > tr.right || er.bottom < tr.top || er.top > tr.bottom);
+      }
+
+      function removeAtom(el){
+        [...el.links].forEach(bnd=>{
+          bnd.lines.forEach(line=>line.remove());
+          const other = bnd.a===el ? bnd.b : bnd.a;
+          other.links = other.links.filter(l=>l!==bnd);
+          bonds.splice(bonds.indexOf(bnd),1);
+        });
+        el.remove();
+      }
+
 
       function dragAtom(el, e){
         const rect = workspace.getBoundingClientRect();
-        const move=(x,y)=>{ el.style.left=(x-rect.left-24)+"px"; el.style.top=(y-rect.top-24)+"px"; updateLinks(el); };
+        const move=(x,y)=>{ el.style.left=(x-rect.left-24)+"px"; el.style.top=(y-rect.top-24)+"px"; updateLinks(el); trash.classList.toggle('over', isOverTrash(el)); };
         move(e.clientX,e.clientY);
         function onMove(ev){ move(ev.clientX,ev.clientY); }
-        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); finalizeAtom(el); }
+        function onUp(ev){ document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); trash.classList.remove('over'); if(isOverTrash(el)){ removeAtom(el); return; } finalizeAtom(el); }
         document.addEventListener('pointermove', onMove);
         document.addEventListener('pointerup', onUp);
         e.preventDefault();
@@ -605,7 +632,7 @@
         const bond={a,b,o,lines:[]};
         const x1=parseFloat(a.style.left)+24, y1=parseFloat(a.style.top)+24;
         const x2=parseFloat(b.style.left)+24, y2=parseFloat(b.style.top)+24;
-        const len=Math.hypot(x2-x1,y2-y1);
+        const len=Math.hypot(x2-x1,y2-y1)||1;
         for(let i=0;i<o;i++){
           const offset=(i-(o-1)/2)*4;
           const ox=-(y2-y1)/len*offset;
@@ -630,7 +657,7 @@
           const {a,b:other,o,lines}=bnd;
           const x1=parseFloat(a.style.left)+24, y1=parseFloat(a.style.top)+24;
           const x2=parseFloat(other.style.left)+24, y2=parseFloat(other.style.top)+24;
-          const len=Math.hypot(x2-x1,y2-y1);
+          const len=Math.hypot(x2-x1,y2-y1)||1;
           lines.forEach((line,i)=>{
             const offset=(i-(o-1)/2)*4;
             const ox=-(y2-y1)/len*offset;
@@ -645,7 +672,7 @@
 
       $('show-answer').addEventListener('click', ()=>{
         const src = imgHrefOf(currentTarget);
-        $('answer-box').innerHTML = src ? `<img src="${src}" alt="" style="display:block;max-width:100%;height:auto">` : benzene();
+        $('answer-box').innerHTML = src ? `<img src="${src}" alt="" style="display:block;max-width:200px;height:auto">` : benzene();
         $('answer-box').hidden = false;
         $('self-eval').hidden = false;
         $('show-answer').disabled = true;
