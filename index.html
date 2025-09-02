@@ -236,6 +236,7 @@
          Pratique
         </button>
         <div class="pill">Flashcards GF</div>
+        <button class="btn ghost" id="gf-help" type="button">Aide</button>
       </div>
 
       <h2 style="margin:0 0 6px 0;font-size:20px">Flashcards inverses — Groupements fonctionnels (18)</h2>
@@ -280,6 +281,7 @@
         <div class="pill">Mode inverse</div>
         <div class="pill" id="inv-prog">0/18</div>
         <div class="pill" id="inv-score">Score : 0</div>
+        <button class="btn ghost" id="builder-help" type="button">Aide</button>
       </div>
 
       <h2 style="margin:0 0 6px 0;font-size:20px">Construis : <span id="inv-target"></span></h2>
@@ -326,6 +328,7 @@
         </button>
         <div class="pill">Match GF</div>
         <div class="pill" id="match-timer">0s</div>
+        <button class="btn ghost" id="match-help" type="button">Aide</button>
       </div>
       <h2 style="margin:0 0 6px 0;font-size:20px">Associe chaque structure à son nom</h2>
       <p class="sub" style="margin-bottom:12px">Clique une structure puis un nom pour créer un lien.</p>
@@ -602,7 +605,16 @@
           $('back-home-builder').addEventListener('click', ()=>{ builder.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; });
       $('open-match').addEventListener('click', ()=>{ fgHub.hidden=true; match.hidden=false; crumbs.textContent='Match GF'; startMatch(); });
       $('back-match').addEventListener('click', ()=>{ match.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(matchTimerId); });
-      
+      $('gf-help').addEventListener('click', ()=>{
+        alert('Tape le nom du groupe.\nUtilise Mélanger, Indice ou Révéler selon le besoin.');
+      });
+      $('builder-help').addEventListener('click', ()=>{
+        alert('Glisse les atomes depuis la palette et choisis une liaison.\nTout effacer permet de recommencer, Voir la solution affiche la réponse.');
+      });
+      $('match-help').addEventListener('click', ()=>{
+        alert('Clique un élément à gauche puis un à droite pour créer un lien.\nReclique sur une extrémité pour le supprimer.\nVérifie ou demande un indice si besoin.');
+      });
+
       const workspace = $('workspace');
       const trash = $('trash');
       let bondSvg = $('bonds');
