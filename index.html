@@ -105,6 +105,11 @@
     #workspace{position:relative;overflow:hidden}
     #bond-tools .btn{padding:6px 10px}
     #bond-tools .btn.active{background:var(--brand);color:#fff}
+    .match-wrap{position:relative;display:flex;gap:24px;align-items:flex-start}
+    .match-col{display:flex;flex-direction:column;gap:12px}
+    .match-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 12px;cursor:pointer;user-select:none}
+    .match-item.selected{outline:2px solid var(--brand)}
+    .match-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
   </style>
 </head>
 <body>
@@ -129,6 +134,52 @@
     </div>
 
     <section id="home">
+         <div class="apps">
+        <button class="app" id="open-chimie" type="button">
+          <div class="icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 4h6l2 2h10v12H3z" fill="none" stroke="currentColor"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <div class="title">Chimie organique</div>
+            <div class="desc">Modules et exercices</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section id="chimie" hidden>
+      <div class="bar">
+        <button class="btn ghost back" id="back-home-chimie" type="button" aria-label="Retour à l'accueil">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Accueil
+        </button>
+        <div class="pill">Chimie organique</div>
+      </div>
+      <div class="apps">
+        <button class="app" id="open-pratique" type="button">
+          <div class="icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 5h8l2 2h6v10H4z" fill="none" stroke="currentColor"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <div class="title">Pratique des groupes fonctionnels</div>
+            <div class="desc">3 modes interactifs</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section id="fg-hub" hidden>
+      <div class="bar">
+        <button class="btn ghost back" id="back-chimie" type="button" aria-label="Retour à la chimie organique">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Chimie org
+        </button>
+        <div class="pill">Pratique des groupes fonctionnels</div>
+      </div>
       <div class="apps">
         <button class="app" id="open-gf" type="button">
           <div class="icon">
@@ -155,16 +206,17 @@
             <div class="desc">Glisse atomes et liaisons pour former le groupe</div>
           </div>
         </button>
-        <button class="app" type="button" disabled style="opacity:.6;cursor:not-allowed">
+        <button class="app" id="open-match" type="button">
           <div class="icon">
             <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <rect x="4" y="6" width="16" height="12" rx="3" stroke="currentColor" fill="none"/>
-              <path d="M4 10 H20" stroke="currentColor"/>
+             <circle cx="7" cy="12" r="3" fill="none" stroke="currentColor"/>
+              <circle cx="17" cy="12" r="3" fill="none" stroke="currentColor"/>
+              <path d="M10 12 H14" stroke="currentColor"/>
             </svg>
           </div>
           <div class="meta">
-            <div class="title">Quiz — à venir</div>
-            <div class="desc">Ajoute d'autres modules ici</div>
+                <div class="title">Match — Relier</div>
+            <div class="desc">Associe noms et structures</div>
           </div>
         </button>
       </div>
@@ -172,9 +224,9 @@
 
     <section id="gf" hidden>
       <div class="bar">
-        <button class="btn ghost back" id="back-home" type="button" aria-label="Retour à l'accueil">
+              <button class="btn ghost back" id="back-home" type="button" aria-label="Retour à la pratique">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Accueil
+         Pratique
         </button>
         <div class="pill">Flashcards GF</div>
       </div>
@@ -214,9 +266,9 @@
     </section>
     <section id="builder" hidden>
       <div class="bar">
-        <button class="btn ghost back" id="back-home-builder" type="button" aria-label="Retour à l'accueil">
+          <button class="btn ghost back" id="back-home-builder" type="button" aria-label="Retour à la pratique">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Accueil
+          Pratique
         </button>
         <div class="pill">Mode inverse</div>
         <div class="pill" id="inv-prog">0/18</div>
@@ -258,6 +310,29 @@
       <div class="row" id="inv-finish" hidden>
         <button class="btn" id="inv-restart" type="button">Recommencer le quiz</button>
       </div>
+    </section>
+       <section id="match" hidden>
+      <div class="bar">
+        <button class="btn ghost back" id="back-match" type="button" aria-label="Retour à la pratique">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Pratique
+        </button>
+        <div class="pill">Match GF</div>
+        <div class="pill" id="match-timer">0s</div>
+      </div>
+      <h2 style="margin:0 0 6px 0;font-size:20px">Associe chaque structure à son nom</h2>
+      <p class="sub" style="margin-bottom:12px">Clique une structure puis un nom pour créer un lien.</p>
+      <div id="match-area" class="match-wrap">
+        <div id="match-left" class="match-col"></div>
+        <svg id="match-lines" class="match-lines"></svg>
+        <div id="match-right" class="match-col"></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="match-check" type="button">Vérifier</button>
+        <button class="btn alt" id="match-hint" type="button">Indice</button>
+        <button class="btn ghost" id="match-restart" type="button">Recommencer</button>
+      </div>
+      <div id="match-msg"></div>
     </section>
   </div>
 
@@ -494,15 +569,21 @@
       });
 
       const home = $('home');
+      const chimie = $('chimie');
+      const fgHub = $('fg-hub');
       const gf = $('gf');
       const builder = $('builder');
+      const match = $('match');
       const crumbs = $('breadcrumbs');
-      $('open-gf').addEventListener('click', ()=>{ home.hidden = true; gf.hidden = false; crumbs.textContent='Flashcards GF'; render(); });
-      $('back-home').addEventListener('click', ()=>{ gf.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; clearInterval(tId); updateBestHome(); });
-
+      $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
+      $('back-home-chimie').addEventListener('click', ()=>{ chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
+      $('open-pratique').addEventListener('click', ()=>{ chimie.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; updateBestHome(); });
+      $('back-chimie').addEventListener('click', ()=>{ fgHub.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
+      $('open-gf').addEventListener('click', ()=>{ fgHub.hidden=true; gf.hidden=false; crumbs.textContent='Flashcards GF'; render(); });
+      $('back-home').addEventListener('click', ()=>{ gf.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(tId); updateBestHome(); });
       $('open-inverse').addEventListener('click', ()=>{
-        home.hidden = true;
-        builder.hidden = false;
+        fgHub.hidden=true;
+        builder.hidden=false;
         crumbs.textContent='Mode inverse';
         invOrder = shuffleArr([...G.keys()]);
         invIdx = 0;
@@ -511,8 +592,10 @@
         updateScore();
         startInverse();
       });
-      $('back-home-builder').addEventListener('click', ()=>{ builder.hidden = true; home.hidden = false; crumbs.textContent='Accueil'; });
-
+          $('back-home-builder').addEventListener('click', ()=>{ builder.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; });
+      $('open-match').addEventListener('click', ()=>{ fgHub.hidden=true; match.hidden=false; crumbs.textContent='Match GF'; startMatch(); });
+      $('back-match').addEventListener('click', ()=>{ match.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(matchTimerId); });
+      
       const workspace = $('workspace');
       const trash = $('trash');
       let bondSvg = $('bonds');
@@ -756,6 +839,141 @@
         updateScore();
         startInverse();
       });
+
+            // --- Match mode ---
+      const matchArea = $('match-area');
+      const matchLeft = $('match-left');
+      const matchRight = $('match-right');
+      const matchLines = $('match-lines');
+      let matchLinks = [];
+      let matchSelected = null;
+      let matchPairs = [];
+      let matchTimerId;
+      let matchStart = 0;
+
+      function startMatch(){
+        matchPairs = shuffleArr([...G]).slice(0,6);
+        const names = shuffleArr([...matchPairs]);
+        matchLeft.innerHTML = '';
+        matchRight.innerHTML = '';
+        matchLines.innerHTML = '';
+        matchLinks = [];
+        matchSelected = null;
+        matchPairs.forEach(g=>{
+          const li=document.createElement('div');
+          li.className='match-item';
+          li.dataset.key=g.k;
+          li.dataset.side='left';
+          li.innerHTML=`<img src="${imgHrefOf(g)}" alt="" style="display:block;width:120px;height:auto">`;
+          matchLeft.appendChild(li);
+        });
+        names.forEach(g=>{
+          const ri=document.createElement('div');
+          ri.className='match-item';
+          ri.dataset.key=g.k;
+          ri.dataset.side='right';
+          ri.textContent=g.l;
+          matchRight.appendChild(ri);
+        });
+        [...matchArea.querySelectorAll('.match-item')].forEach(el=>el.addEventListener('click',()=>selectMatch(el)));
+        matchStart=Date.now();
+        $('match-timer').textContent='0s';
+        clearInterval(matchTimerId);
+        matchTimerId=setInterval(()=>{ $('match-timer').textContent=`${Math.floor((Date.now()-matchStart)/1000)}s`; },1000);
+        $('match-msg').textContent='';
+      }
+
+      function selectMatch(el){
+        if(el.dataset.linked){ removeLink(el); }
+        if(matchSelected){
+          if(matchSelected===el){ matchSelected.classList.remove('selected'); matchSelected=null; return; }
+          connectMatch(matchSelected, el);
+          matchSelected.classList.remove('selected');
+          matchSelected=null;
+        } else {
+          el.classList.add('selected');
+          matchSelected=el;
+        }
+      }
+
+      function removeLink(el){
+        const i=matchLinks.findIndex(l=>l.left===el || l.right===el);
+        if(i>-1){
+          const ln=matchLinks[i];
+          ln.left.dataset.linked='';
+          ln.right.dataset.linked='';
+          ln.line.remove();
+          matchLinks.splice(i,1);
+        }
+      }
+
+      function connectMatch(a,b){
+        const left=a.dataset.side==='left'?a:b;
+        const right=a.dataset.side==='right'?a:b;
+        removeLink(left);
+        removeLink(right);
+        const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('stroke','var(--ink)');
+        line.setAttribute('stroke-width',2);
+        matchLines.appendChild(line);
+        const link={left,right,key:left.dataset.key,line};
+        matchLinks.push(link);
+        left.dataset.linked='1';
+        right.dataset.linked='1';
+        updateMatchLine(link);
+        left.classList.remove('selected');
+        right.classList.remove('selected');
+      }
+
+      function updateMatchLine(link){
+        const wrap=matchArea.getBoundingClientRect();
+        const a=link.left.getBoundingClientRect();
+        const b=link.right.getBoundingClientRect();
+        const line=link.line;
+        line.setAttribute('x1', a.right - wrap.left);
+        line.setAttribute('y1', a.top + a.height/2 - wrap.top);
+        line.setAttribute('x2', b.left - wrap.left);
+        line.setAttribute('y2', b.top + b.height/2 - wrap.top);
+      }
+      window.addEventListener('resize', ()=>matchLinks.forEach(updateMatchLine));
+
+      function verifyMatch(){
+        let correct=0;
+        matchLinks.forEach(l=>{
+          updateMatchLine(l);
+          if(l.left.dataset.key===l.right.dataset.key){
+            l.line.setAttribute('stroke','#10b981');
+            correct++;
+          } else {
+            l.line.setAttribute('stroke','#ef4444');
+          }
+        });
+        $('match-msg').className='msg';
+        $('match-msg').textContent=`Score : ${correct}/${matchPairs.length}`;
+        if(correct===matchPairs.length){
+          clearInterval(matchTimerId);
+          const t=Math.floor((Date.now()-matchStart)/1000);
+          const best=+localStorage.matchBest||Infinity;
+          if(t<best) localStorage.matchBest=t;
+          const bestMsg=isFinite(best)?Math.min(t,best):t;
+          $('match-msg').textContent+=` — Temps : ${t}s (Meilleur : ${bestMsg}s)`;
+        }
+      }
+
+      function hintMatch(){
+        const remaining=matchPairs.filter(g=>!matchLinks.some(l=>l.key===g.k));
+        if(!remaining.length) return;
+        const g=remaining[Math.floor(Math.random()*remaining.length)];
+        const l=[...matchLeft.children].find(e=>e.dataset.key===g.k);
+        const r=[...matchRight.children].find(e=>e.dataset.key===g.k);
+        l.classList.add('selected');
+        r.classList.add('selected');
+        setTimeout(()=>{l.classList.remove('selected');r.classList.remove('selected');},800);
+      }
+
+      $('match-check').addEventListener('click', verifyMatch);
+      $('match-restart').addEventListener('click', startMatch);
+      $('match-hint').addEventListener('click', hintMatch);
 
       document.addEventListener('keydown', (e)=>{
         if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
