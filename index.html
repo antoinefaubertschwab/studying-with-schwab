@@ -106,8 +106,9 @@
     #bond-tools .btn{padding:6px 10px}
     #bond-tools .btn.active{background:var(--brand);color:#fff}
     .match-wrap{position:relative;display:flex;gap:24px;align-items:flex-start}
-    .match-col{display:flex;flex-direction:column;gap:12px}
-    .match-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 12px;cursor:pointer;user-select:none}
+    .match-col{display:flex;flex-direction:column;gap:4px;font-size:14px}
+    .match-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:2px 6px;cursor:pointer;user-select:none}
+    .match-item img{height:28px;width:auto;display:block}
     .match-item.selected{outline:2px solid var(--brand)}
     .match-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
   </style>
@@ -850,21 +851,23 @@
       let matchPairs = [];
       let matchTimerId;
       let matchStart = 0;
-
+      const matchColors=['#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#10b981','#14b8a6','#06b6d4','#0ea5e9','#3b82f6','#6366f1','#8b5cf6','#a855f7','#d946ef','#ec4899','#f43f5e','#fb7185'];
+      let matchColorIdx=0;
       function startMatch(){
-        matchPairs = shuffleArr([...G]).slice(0,6);
+        matchPairs = shuffleArr([...G]);
         const names = shuffleArr([...matchPairs]);
         matchLeft.innerHTML = '';
         matchRight.innerHTML = '';
         matchLines.innerHTML = '';
         matchLinks = [];
         matchSelected = null;
+        matchColorIdx=0;
         matchPairs.forEach(g=>{
           const li=document.createElement('div');
           li.className='match-item';
           li.dataset.key=g.k;
           li.dataset.side='left';
-          li.innerHTML=`<img src="${imgHrefOf(g)}" alt="" style="display:block;width:120px;height:auto">`;
+          li.innerHTML=`<img src="${imgHrefOf(g)}" alt="">`;
           matchLeft.appendChild(li);
         });
         names.forEach(g=>{
@@ -913,10 +916,12 @@
         removeLink(left);
         removeLink(right);
         const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-        line.setAttribute('stroke','var(--ink)');
+        const color=matchColors[matchColorIdx%matchColors.length];
+        matchColorIdx++;
+        line.setAttribute('stroke',color);
         line.setAttribute('stroke-width',2);
         matchLines.appendChild(line);
-        const link={left,right,key:left.dataset.key,line};
+        const link={left,right,key:left.dataset.key,line,color};
         matchLinks.push(link);
         left.dataset.linked='1';
         right.dataset.linked='1';
