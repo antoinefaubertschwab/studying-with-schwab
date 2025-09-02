@@ -107,10 +107,16 @@
     #bond-tools .btn.active{background:var(--brand);color:#fff}
     .match-wrap{position:relative;display:flex;gap:48px;align-items:flex-start;min-height:80vh}
     .match-col{display:flex;flex-direction:column;gap:16px;font-size:14px}
+    .match-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:2px 6px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;height:80px;position:relative}
+    .match-item img{height:72px;width:auto;display:block}
+    .match-col{display:flex;flex-direction:column;gap:16px;font-size:14px}
     .match-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:2px 6px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;height:80px}
     .match-item img{height:72px;width:auto;display:block}
     .match-item.selected{outline:2px solid var(--brand)}
     .match-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+    .match-dot{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--ink);top:50%;transform:translateY(-50%)}
+    .match-item[data-side="left"] .match-dot{right:-24px}
+    .match-item[data-side="right"] .match-dot{left:-24px}
   </style>
 </head>
 <body>
@@ -868,6 +874,9 @@
           li.dataset.key=g.k;
           li.dataset.side='left';
           li.innerHTML=`<img src="${imgHrefOf(g)}" alt="">`;
+          const dl=document.createElement('span');
+          dl.className='match-dot';
+          li.appendChild(dl);
           matchLeft.appendChild(li);
         });
         names.forEach(g=>{
@@ -876,6 +885,9 @@
           ri.dataset.key=g.k;
           ri.dataset.side='right';
           ri.textContent=g.l;
+          const dr=document.createElement('span');
+          dr.className='match-dot';
+          ri.appendChild(dr);
           matchRight.appendChild(ri);
         });
         [...matchArea.querySelectorAll('.match-item')].forEach(el=>el.addEventListener('click',()=>selectMatch(el)));
