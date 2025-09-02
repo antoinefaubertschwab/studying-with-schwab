@@ -944,12 +944,12 @@
 
       function updateMatchLine(link){
         const wrap=matchArea.getBoundingClientRect();
-        const a=link.left.getBoundingClientRect();
-        const b=link.right.getBoundingClientRect();
+        const a=link.left.querySelector('.match-dot').getBoundingClientRect();
+        const b=link.right.querySelector('.match-dot').getBoundingClientRect();
         const line=link.line;
-        line.setAttribute('x1', a.right - wrap.left);
+        line.setAttribute('x1', a.left + a.width/2 - wrap.left);
         line.setAttribute('y1', a.top + a.height/2 - wrap.top);
-        line.setAttribute('x2', b.left - wrap.left);
+        line.setAttribute('x2', b.left + b.width/2 - wrap.left);
         line.setAttribute('y2', b.top + b.height/2 - wrap.top);
       }
       window.addEventListener('resize', ()=>matchLinks.forEach(updateMatchLine));
