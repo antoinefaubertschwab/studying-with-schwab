@@ -784,11 +784,46 @@
         let priOrder = [];
         const priorityList = $('priority-list');
         let dragEl = null;
-        priorityList.addEventListener('dragstart', e=>{ if(e.target.classList.contains('priority-item')){ dragEl=e.target; dragEl.classList.add('dragging'); }});
-        priorityList.addEventListener('dragend', ()=>{ if(dragEl){ dragEl.classList.remove('dragging'); dragEl=null; } [...priorityList.children].forEach(li=>li.classList.remove('over-top','over-bottom')); });
-        priorityList.addEventListener('dragover', e=>{ e.preventDefault(); const t=e.target; if(t.classList.contains('priority-item') && dragEl && t!==dragEl){ const rect=t.getBoundingClientRect(); const after=e.clientY>rect.top+rect.height/2; t.classList.toggle('over-bottom',after); t.classList.toggle('over-top',!after); }});
-        priorityList.addEventListener('dragleave', e=>{ if(e.target.classList.contains('priority-item')) e.target.classList.remove('over-top','over-bottom'); });
-        priorityList.addEventListener('drop', e=>{ e.preventDefault(); const t=e.target; if(t.classList.contains('priority-item') && dragEl && t!==dragEl){ const items=[...priorityList.children]; const after=t.classList.contains('over-bottom'); t.classList.remove('over-top','over-bottom'); const dst=items.indexOf(t)+(after?1:0); priorityList.insertBefore(dragEl, items[dst]||null); }});
+                priorityList.addEventListener('dragstart', e=>{
+          const t = e.target.closest('.priority-item');
+          if(t){
+            dragEl=t;
+            dragEl.classList.add('dragging');
+            e.dataTransfer.setData('text/plain','');
+          }
+        });
+        priorityList.addEventListener('dragend', ()=>{
+          if(dragEl){
+            dragEl.classList.remove('dragging');
+            dragEl=null;
+          }
+          [...priorityList.children].forEach(li=>li.classList.remove('over-top','over-bottom'));
+        });
+        priorityList.addEventListener('dragover', e=>{
+          e.preventDefault();
+          const t=e.target.closest('.priority-item');
+          if(t && dragEl && t!==dragEl){
+            const rect=t.getBoundingClientRect();
+            const after=e.clientY>rect.top+rect.height/2;
+            t.classList.toggle('over-bottom',after);
+            t.classList.toggle('over-top',!after);
+          }
+        });
+        priorityList.addEventListener('dragleave', e=>{
+          const t = e.target.closest('.priority-item');
+          if(t) t.classList.remove('over-top','over-bottom');
+        });
+        priorityList.addEventListener('drop', e=>{
+          e.preventDefault();
+          const t=e.target.closest('.priority-item');
+          if(t && dragEl && t!==dragEl){
+            const after=t.classList.contains('over-bottom');
+            t.classList.remove('over-top','over-bottom');
+            const items=[...priorityList.children].filter(li=>li!==dragEl);
+            const dst=items.indexOf(t)+(after?1:0);
+            priorityList.insertBefore(dragEl, items[dst]||null);
+          }
+        });
       function renderPriority(){
           priorityList.innerHTML='';
           priOrder.forEach(k=>{
