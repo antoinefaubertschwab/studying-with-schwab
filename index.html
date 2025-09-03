@@ -119,10 +119,8 @@
     .match-item[data-side="right"] .match-dot{left:-24px}
     .priority-container{display:flex;align-items:flex-start;justify-content:center;gap:32px;margin-top:12px}
     .priority-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;}
-    .priority-item{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:12px 16px;cursor:grab;user-select:none;text-align:center;min-width:180px;font-size:16px;transition:margin .2s}
+    .priority-item{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:12px 16px;cursor:grab;user-select:none;text-align:center;min-width:180px;font-size:16px}
     .priority-item.dragging{border-color:var(--brand);}
-    .priority-item.over-top{margin-top:24px;}
-    .priority-item.over-bottom{margin-bottom:24px;}
   </style>
 </head>
 <body>
@@ -797,7 +795,6 @@
             dragEl.classList.remove('dragging');
             dragEl=null;
           }
-          [...priorityList.children].forEach(li=>li.classList.remove('over-top','over-bottom'));
         });
         priorityList.addEventListener('dragover', e=>{
           e.preventDefault();
@@ -805,25 +802,10 @@
           if(t && dragEl && t!==dragEl){
             const rect=t.getBoundingClientRect();
             const after=e.clientY>rect.top+rect.height/2;
-            t.classList.toggle('over-bottom',after);
-            t.classList.toggle('over-top',!after);
+            priorityList.insertBefore(dragEl, after ? t.nextSibling : t);
           }
         });
-        priorityList.addEventListener('dragleave', e=>{
-          const t = e.target.closest('.priority-item');
-          if(t) t.classList.remove('over-top','over-bottom');
-        });
-        priorityList.addEventListener('drop', e=>{
-          e.preventDefault();
-          const t=e.target.closest('.priority-item');
-          if(t && dragEl && t!==dragEl){
-            const after=t.classList.contains('over-bottom');
-            t.classList.remove('over-top','over-bottom');
-            const items=[...priorityList.children].filter(li=>li!==dragEl);
-            const dst=items.indexOf(t)+(after?1:0);
-            priorityList.insertBefore(dragEl, items[dst]||null);
-          }
-        });
+      priorityList.addEventListener('drop', e=>e.preventDefault());
       function renderPriority(){
           priorityList.innerHTML='';
           priOrder.forEach(k=>{
