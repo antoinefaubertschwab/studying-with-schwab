@@ -117,6 +117,7 @@
     .match-dot{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--ink);top:50%;transform:translateY(-50%)}
     .match-item[data-side="left"] .match-dot{right:-24px}
     .match-item[data-side="right"] .match-dot{left:-24px}
+    .priority-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;cursor:grab;user-select:none}
   </style>
 </head>
 <body>
@@ -176,6 +177,57 @@
             <div class="desc">3 modes interactifs</div>
           </div>
         </button>
+               <button class="app" id="open-prefixes" type="button">
+          <div class="icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 4V20M8 8L12 4L16 8" stroke="currentColor" fill="none"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <div class="title">Préfixes grecs</div>
+            <div class="desc">1–12 carbones</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section id="prefixes" hidden>
+      <div class="bar">
+        <button class="btn ghost back" id="back-prefixes" type="button" aria-label="Retour à la chimie organique">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Chimie org
+        </button>
+        <div class="pill">Préfixes grecs</div>
+      </div>
+
+      <h2 style="margin:0 0 6px 0;font-size:20px">Préfixes grecs (1–12)</h2>
+      <p class="sub" style="margin-bottom:12px">Donne le préfixe correspondant au nombre de carbones.</p>
+
+      <div class="row">
+        <button class="btn" id="pre-shuffle" type="button">Mélanger</button>
+        <button class="btn alt" id="pre-hint" type="button">Indice</button>
+        <span class="pill" id="pre-prog"></span>
+        <span class="pill" id="pre-score"></span>
+      </div>
+
+      <div class="card" id="pre-card" style="font-size:48px;text-align:center"></div>
+
+      <div class="row grid">
+        <input type="text" id="pre-input" placeholder="Ex. méth, éthyl, prop…" />
+        <div style="display:flex;gap:10px">
+          <button class="btn" id="pre-check" type="button">Vérifier</button>
+          <button class="btn alt" id="pre-reveal" type="button">Révéler</button>
+          <button class="btn" id="pre-next" type="button">Suivant</button>
+        </div>
+      </div>
+
+      <p class="sub" style="margin-top:6px">Raccourcis : Enter=Vérifier · R=Révéler · N=Suivant · M=Mélanger</p>
+
+      <div id="pre-msg"></div>
+      <div id="pre-live" aria-live="polite" class="visually-hidden"></div>
+
+      <div class="row" id="pre-finish-actions" hidden>
+        <button class="btn" id="pre-restart" type="button">Recommencer le quiz</button>
       </div>
     </section>
 
@@ -224,6 +276,17 @@
           <div class="meta">
                 <div class="title">Match — Relier</div>
             <div class="desc">Associe noms et structures</div>
+          </div>
+        </button>
+             <button class="app" id="open-priority" type="button">
+          <div class="icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 5H20M4 12H20M4 19H20" stroke="currentColor"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <div class="title">Priorité — Classer</div>
+            <div class="desc">Du plus au moins</div>
           </div>
         </button>
       </div>
@@ -343,9 +406,32 @@
         <button class="btn alt" id="match-hint" type="button">Indice</button>
         <button class="btn ghost" id="match-restart" type="button">Recommencer</button>
       </div>
-      <div id="match-msg"></div>
-    </section>
-  </div>
+             <div id="match-msg"></div>
+      </section>
+      <section id="priority" hidden>
+        <div class="bar">
+          <button class="btn ghost back" id="back-priority" type="button" aria-label="Retour à la pratique">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Pratique
+          </button>
+          <div class="pill">Priorité GF</div>
+          <button class="btn ghost" id="priority-help" type="button">Aide</button>
+        </div>
+        <p class="sub" style="margin-bottom:12px">Glisse les groupes du plus prioritaire au moins prioritaire.</p>
+        <div style="display:flex;align-items:flex-start;gap:16px;margin-top:12px">
+          <div id="priority-bar" style="position:relative;height:260px;width:8px;background:var(--border);border-radius:4px;">
+            <span style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:12px">Plus prioritaire</span>
+            <span style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:12px">Moins prioritaire</span>
+          </div>
+          <ul id="priority-list" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;"></ul>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="priority-check" type="button">Vérifier</button>
+          <button class="btn alt" id="priority-restart" type="button">Recommencer</button>
+        </div>
+        <div id="priority-msg"></div>
+      </section>
+    </div>
 
   <div id="zoom"><div id="zoomInner"></div></div>
   <div id="toast"></div>
@@ -573,48 +659,169 @@
       $('hint').addEventListener('click', showHint);
       $('input').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ checkAns(); }});
 
-      $('restart').addEventListener('click', ()=>{
-        order = shuffleArr([...G.keys()]);
-        idx = 0; score = 0; finished = false; correctSet.clear();
-        render();
-      });
+        $('restart').addEventListener('click', ()=>{
+          order = shuffleArr([...G.keys()]);
+          idx = 0; score = 0; finished = false; correctSet.clear();
+          render();
+        });
+        // --- Préfixes grecs ---
+        const PREFIXES = [
+          {n:1,l:'Méth',a:['meth','méth','meth-','méth-']},
+          {n:2,l:'Éthyl',a:['ethyl','éthyl','eth','éth']},
+          {n:3,l:'Prop',a:['prop']},
+          {n:4,l:'But',a:['but']},
+          {n:5,l:'Pent',a:['pent']},
+          {n:6,l:'Hex',a:['hex']},
+          {n:7,l:'Hept',a:['hept']},
+          {n:8,l:'Oct',a:['oct']},
+          {n:9,l:'Non',a:['non']},
+          {n:10,l:'Déc',a:['dec','déc','deca','déca']},
+          {n:11,l:'Undéc',a:['undec','undéc','hendec','hendéc']},
+          {n:12,l:'Dodéc',a:['dodec','dodéc','dodeca','dodéca']}
+        ];
+        let preOrder = shuffleArr([...PREFIXES.keys()]);
+        let preIdx = 0, preScore = 0, preFinished = false;
+        function resetPrefixes(){
+          preOrder = shuffleArr([...PREFIXES.keys()]);
+          preIdx = 0; preScore = 0; preFinished = false;
+          $('pre-finish-actions').hidden = true;
+        }
+        function renderPrefix(){
+          const p = PREFIXES[preOrder[preIdx]];
+          $('pre-card').textContent = p.n + (p.n>1?' carbones':' carbone');
+          $('pre-prog').textContent = `${preIdx+1}/${PREFIXES.length}`;
+          $('pre-score').textContent = `Score : ${preScore}`;
+          $('pre-input').value = '';
+          $('pre-input').focus();
+          $('pre-msg').className='msg';
+          $('pre-msg').textContent='';
+        }
+        function checkPre(){
+          if(preFinished) return;
+          const ans = norm($('pre-input').value);
+          const p = PREFIXES[preOrder[preIdx]];
+          const ok = p.a.some(x=>norm(x)===ans);
+          $('pre-msg').className = 'msg ' + (ok?'ok':'bad');
+          $('pre-msg').textContent = ok? 'Correct !' : `Mauvaise réponse — ${p.l}-`;
+          $('pre-live').textContent = $('pre-msg').textContent;
+          if(ok) preScore++;
+          preFinished = true;
+          $('pre-score').textContent = `Score : ${preScore}`;
+        }
+        function nextPre(){
+          if(!preFinished) checkPre();
+          if(preIdx + 1 >= PREFIXES.length){
+            $('pre-msg').className='msg';
+            $('pre-msg').textContent = `Terminé ! Score : ${preScore}/${PREFIXES.length}`;
+            $('pre-finish-actions').hidden=false;
+          } else {
+            preIdx++; preFinished=false; renderPrefix();
+          }
+        }
+        function revealPre(){
+          if(preFinished) return;
+          const p=PREFIXES[preOrder[preIdx]];
+          $('pre-msg').className='msg bad';
+          $('pre-msg').textContent=`Réponse : ${p.l}-`;
+          $('pre-live').textContent = $('pre-msg').textContent;
+          preFinished=true;
+        }
+        function hintPre(){
+          if(preFinished) return;
+          const p=PREFIXES[preOrder[preIdx]];
+          $('pre-msg').className='msg';
+          $('pre-msg').textContent=`Indice : ${p.l[0]}`;
+          $('pre-live').textContent = $('pre-msg').textContent;
+        }
+        $('pre-check').addEventListener('click', checkPre);
+        $('pre-reveal').addEventListener('click', revealPre);
+        $('pre-next').addEventListener('click', nextPre);
+        $('pre-shuffle').addEventListener('click', ()=>{resetPrefixes();renderPrefix();});
+        $('pre-hint').addEventListener('click', hintPre);
+        $('pre-input').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPre(); });
+        $('pre-restart').addEventListener('click', ()=>{resetPrefixes();renderPrefix();});
 
-      const home = $('home');
+        // --- Priorité des groupes fonctionnels ---
+        const PRIORITY_ORDER = ['aldehyde','ketone','alcool','alcene','alcyne','halogene'];
+        const PRIORITY_LABELS = {aldehyde:'Aldéhyde',ketone:'Cétone',alcool:'Alcool',alcene:'Alcène',alcyne:'Alcyne',halogene:'Halogénure'};
+        let priOrder = [];
+        const priorityList = $('priority-list');
+        let dragEl = null;
+        priorityList.addEventListener('dragstart', e=>{ if(e.target.classList.contains('priority-item')) dragEl=e.target; });
+        priorityList.addEventListener('dragover', e=>{ e.preventDefault(); });
+        priorityList.addEventListener('drop', e=>{ e.preventDefault(); const t=e.target; if(t.classList.contains('priority-item') && dragEl && t!==dragEl){ const items=[...priorityList.children]; const src=items.indexOf(dragEl); const dst=items.indexOf(t); if(src<dst) priorityList.insertBefore(dragEl,t.nextSibling); else priorityList.insertBefore(dragEl,t); }});
+        function renderPriority(){
+          priorityList.innerHTML='';
+          priOrder.forEach(k=>{
+            const li=document.createElement('li');
+            li.textContent=PRIORITY_LABELS[k];
+            li.className='priority-item';
+            li.dataset.key=k;
+            li.draggable=true;
+            priorityList.appendChild(li);
+          });
+        }
+        function restartPriority(){
+          priOrder = shuffleArr([...PRIORITY_ORDER]);
+          renderPriority();
+          $('priority-msg').textContent='';
+          $('priority-msg').className='msg';
+        }
+        function checkPriority(){
+          const order=[...priorityList.children].map(li=>li.dataset.key);
+          let ok=true;
+          for(let i=0;i<PRIORITY_ORDER.length;i++){ if(order[i]!==PRIORITY_ORDER[i]){ ok=false; break; }}
+          $('priority-msg').className='msg ' + (ok?'ok':'bad');
+          $('priority-msg').textContent = ok? 'Parfait !':'Ordre incorrect';
+        }
+        $('priority-check').addEventListener('click', checkPriority);
+        $('priority-restart').addEventListener('click', restartPriority);
+
+        const home = $('home');
       const chimie = $('chimie');
       const fgHub = $('fg-hub');
-      const gf = $('gf');
-      const builder = $('builder');
-      const match = $('match');
-      const crumbs = $('breadcrumbs');
-      $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
-      $('back-home-chimie').addEventListener('click', ()=>{ chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
-      $('open-pratique').addEventListener('click', ()=>{ chimie.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; updateBestHome(); });
-      $('back-chimie').addEventListener('click', ()=>{ fgHub.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
-      $('open-gf').addEventListener('click', ()=>{ fgHub.hidden=true; gf.hidden=false; crumbs.textContent='Flashcards GF'; render(); });
-      $('back-home').addEventListener('click', ()=>{ gf.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(tId); updateBestHome(); });
-      $('open-inverse').addEventListener('click', ()=>{
-        fgHub.hidden=true;
-        builder.hidden=false;
-        crumbs.textContent='Mode inverse';
-        invOrder = shuffleArr([...G.keys()]);
-        invIdx = 0;
-        invCorrect = 0;
-        builderFinished = false;
-        updateScore();
-        startInverse();
-      });
-          $('back-home-builder').addEventListener('click', ()=>{ builder.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; });
-      $('open-match').addEventListener('click', ()=>{ fgHub.hidden=true; match.hidden=false; crumbs.textContent='Match GF'; startMatch(); });
-      $('back-match').addEventListener('click', ()=>{ match.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(matchTimerId); });
-      $('gf-help').addEventListener('click', ()=>{
-        alert('Tape le nom du groupe.\nUtilise Mélanger, Indice ou Révéler selon le besoin.');
-      });
-      $('builder-help').addEventListener('click', ()=>{
-        alert('Glisse les atomes depuis la palette et choisis une liaison.\nTout effacer permet de recommencer, Voir la solution affiche la réponse.');
-      });
-      $('match-help').addEventListener('click', ()=>{
-        alert('Clique un élément à gauche puis un à droite pour créer un lien.\nReclique sur une extrémité pour le supprimer.\nVérifie ou demande un indice si besoin.');
-      });
+        const gf = $('gf');
+        const builder = $('builder');
+        const match = $('match');
+        const prefixes = $('prefixes');
+        const priority = $('priority');
+        const crumbs = $('breadcrumbs');
+        $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
+        $('back-home-chimie').addEventListener('click', ()=>{ chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
+        $('open-pratique').addEventListener('click', ()=>{ chimie.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; updateBestHome(); });
+        $('open-prefixes').addEventListener('click', ()=>{ chimie.hidden=true; prefixes.hidden=false; crumbs.textContent='Préfixes grecs'; resetPrefixes(); renderPrefix(); });
+        $('back-prefixes').addEventListener('click', ()=>{ prefixes.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
+        $('back-chimie').addEventListener('click', ()=>{ fgHub.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
+        $('open-gf').addEventListener('click', ()=>{ fgHub.hidden=true; gf.hidden=false; crumbs.textContent='Flashcards GF'; render(); });
+        $('back-home').addEventListener('click', ()=>{ gf.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(tId); updateBestHome(); });
+        $('open-inverse').addEventListener('click', ()=>{
+          fgHub.hidden=true;
+          builder.hidden=false;
+          crumbs.textContent='Mode inverse';
+          invOrder = shuffleArr([...G.keys()]);
+          invIdx = 0;
+          invCorrect = 0;
+          builderFinished = false;
+          updateScore();
+          startInverse();
+        });
+            $('back-home-builder').addEventListener('click', ()=>{ builder.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; });
+        $('open-match').addEventListener('click', ()=>{ fgHub.hidden=true; match.hidden=false; crumbs.textContent='Match GF'; startMatch(); });
+        $('open-priority').addEventListener('click', ()=>{ fgHub.hidden=true; priority.hidden=false; crumbs.textContent='Priorité GF'; restartPriority(); });
+        $('back-match').addEventListener('click', ()=>{ match.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(matchTimerId); });
+        $('back-priority').addEventListener('click', ()=>{ priority.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; });
+        $('gf-help').addEventListener('click', ()=>{
+          alert('Tape le nom du groupe.\nUtilise Mélanger, Indice ou Révéler selon le besoin.');
+        });
+        $('builder-help').addEventListener('click', ()=>{
+          alert('Glisse les atomes depuis la palette et choisis une liaison.\nTout effacer permet de recommencer, Voir la solution affiche la réponse.');
+        });
+        $('match-help').addEventListener('click', ()=>{
+          alert('Clique un élément à gauche puis un à droite pour créer un lien.\nReclique sur une extrémité pour le supprimer.\nVérifie ou demande un indice si besoin.');
+        });
+        $('priority-help').addEventListener('click', ()=>{
+          alert('Place les groupes du plus prioritaire au moins prioritaire puis vérifie.');
+        });
 
       const workspace = $('workspace');
       const trash = $('trash');
@@ -1005,13 +1212,21 @@
       $('match-restart').addEventListener('click', startMatch);
       $('match-hint').addEventListener('click', hintMatch);
 
-      document.addEventListener('keydown', (e)=>{
-        if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
-        const k=e.key.toLowerCase();
-        if (k==='m') $('shuffle').click();
-        if (k==='r') $('reveal').click();
-        if (k==='n' || e.key==='ArrowRight') $('next').click();
-      });
+          document.addEventListener('keydown', (e)=>{
+          if (e.target.id === 'input') { if (e.key === 'Enter') checkAns(); return; }
+          if (e.target.id === 'pre-input') { if (e.key === 'Enter') checkPre(); return; }
+          const k=e.key.toLowerCase();
+          if(!gf.hidden){
+            if (k==='m') $('shuffle').click();
+            if (k==='r') $('reveal').click();
+            if (k==='n' || e.key==='ArrowRight') $('next').click();
+          }
+          if(!prefixes.hidden){
+            if (k==='m') $('pre-shuffle').click();
+            if (k==='r') $('pre-reveal').click();
+            if (k==='n' || e.key==='ArrowRight') $('pre-next').click();
+          }
+        });
 
       $('svg').addEventListener('click', ()=>{
         const g=G[order[idx]];
