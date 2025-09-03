@@ -117,7 +117,12 @@
     .match-dot{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--ink);top:50%;transform:translateY(-50%)}
     .match-item[data-side="left"] .match-dot{right:-24px}
     .match-item[data-side="right"] .match-dot{left:-24px}
-    .priority-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;cursor:grab;user-select:none}
+    .priority-container{display:flex;align-items:flex-start;justify-content:center;gap:32px;margin-top:12px}
+    .priority-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;}
+    .priority-item{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:12px 16px;cursor:grab;user-select:none;text-align:center;min-width:180px;font-size:16px;transition:margin .2s}
+    .priority-item.dragging{border-color:var(--brand);}
+    .priority-item.over-top{margin-top:24px;}
+    .priority-item.over-bottom{margin-bottom:24px;}
   </style>
 </head>
 <body>
@@ -174,7 +179,7 @@
           </div>
           <div class="meta">
             <div class="title">Pratique des groupes fonctionnels</div>
-            <div class="desc">3 modes interactifs</div>
+            <div class="desc">4 jeux interactifs</div>
           </div>
         </button>
                <button class="app" id="open-prefixes" type="button">
@@ -187,6 +192,7 @@
             <div class="title">Préfixes grecs</div>
             <div class="desc">1–12 carbones</div>
           </div>
+          <span class="pill" id="pre-best-pill" style="margin-left:auto">Meilleur : 0/12</span>
         </button>
       </div>
     </section>
@@ -217,7 +223,7 @@
         <div style="display:flex;gap:10px">
           <button class="btn" id="pre-check" type="button">Vérifier</button>
           <button class="btn alt" id="pre-reveal" type="button">Révéler</button>
-          <button class="btn" id="pre-next" type="button">Suivant</button>
+          <button class="btn" id="pre-next" type="button" hidden>Je ne ferais plus la même erreur</button>
         </div>
       </div>
 
@@ -264,6 +270,7 @@
             <div class="title">Mode inverse — Construire</div>
             <div class="desc">Glisse atomes et liaisons pour former le groupe</div>
           </div>
+          <span class="pill" id="inv-best" style="margin-left:auto">Meilleur : 0/18</span>
         </button>
         <button class="app" id="open-match" type="button">
           <div class="icon">
@@ -277,6 +284,7 @@
                 <div class="title">Match — Relier</div>
             <div class="desc">Associe noms et structures</div>
           </div>
+          <span class="pill" id="match-best" style="margin-left:auto">Meilleur : —</span>
         </button>
              <button class="app" id="open-priority" type="button">
           <div class="icon">
@@ -288,6 +296,7 @@
             <div class="title">Priorité — Classer</div>
             <div class="desc">Du plus au moins</div>
           </div>
+          <span class="pill" id="priority-best" style="margin-left:auto">Meilleur : —</span>
         </button>
       </div>
     </section>
@@ -321,7 +330,7 @@
         <div style="display:flex;gap:10px">
           <button class="btn" id="check" type="button">Vérifier</button>
           <button class="btn alt" id="reveal" type="button">Révéler</button>
-          <button class="btn" id="next" type="button">Suivant</button>
+          <button class="btn" id="next" type="button" hidden>Je ne ferais plus la même erreur</button>
         </div>
       </div>
 
@@ -418,12 +427,12 @@
           <button class="btn ghost" id="priority-help" type="button">Aide</button>
         </div>
         <p class="sub" style="margin-bottom:12px">Glisse les groupes du plus prioritaire au moins prioritaire.</p>
-        <div style="display:flex;align-items:flex-start;gap:16px;margin-top:12px">
+          <div class="priority-container">
           <div id="priority-bar" style="position:relative;height:260px;width:8px;background:var(--border);border-radius:4px;">
             <span style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:12px">Plus prioritaire</span>
             <span style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:12px">Moins prioritaire</span>
           </div>
-          <ul id="priority-list" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;"></ul>
+          <ul id="priority-list" class="priority-list"></ul>
         </div>
         <div class="row" style="margin-top:12px">
           <button class="btn" id="priority-check" type="button">Vérifier</button>
@@ -532,10 +541,25 @@
       let timePerCard = 8;
       let timeLeft = timePerCard, tId=null;
 
-      const BEST_KEY='gf_best_v1';
-      const getBest=()=> Number(localStorage.getItem(BEST_KEY)||0);
-      const setBest=(n)=> localStorage.setItem(BEST_KEY, String(Math.max(getBest(), n)));
-      const updateBestHome=()=>{const el=$('best-pill'); if(el) el.textContent=`Meilleur : ${getBest()}/${G.length}`;};
+      const GF_BEST_KEY='gf_best_v1';
+      const INV_BEST_KEY='inv_best_v1';
+      const PRE_BEST_KEY='pre_best_v1';
+      const PRIORITY_BEST_KEY='priority_best_v1';
+      const getBest=()=> Number(localStorage.getItem(GF_BEST_KEY)||0);
+      const setBest=(n)=> localStorage.setItem(GF_BEST_KEY, String(Math.max(getBest(), n)));
+      const getInvBest=()=> Number(localStorage.getItem(INV_BEST_KEY)||0);
+      const setInvBest=(n)=> localStorage.setItem(INV_BEST_KEY, String(Math.max(getInvBest(), n)));
+      const getPreBest=()=> Number(localStorage.getItem(PRE_BEST_KEY)||0);
+      const setPreBest=(n)=> localStorage.setItem(PRE_BEST_KEY, String(Math.max(getPreBest(), n)));
+      const getPriorityBest=()=> localStorage.getItem(PRIORITY_BEST_KEY)==='1';
+      const setPriorityBest=()=> localStorage.setItem(PRIORITY_BEST_KEY,'1');
+      const updateBestHome=()=>{
+        const el=$('best-pill'); if(el) el.textContent=`Meilleur : ${getBest()}/${G.length}`;
+        const invEl=$('inv-best'); if(invEl) invEl.textContent=`Meilleur : ${getInvBest()}/${G.length}`;
+        const matchEl=$('match-best'); if(matchEl){ const t=localStorage.matchBest; matchEl.textContent=`Meilleur : ${t? t+'s':'—'}`; }
+        const priEl=$('priority-best'); if(priEl) priEl.textContent=getPriorityBest()? 'Meilleur : ✓' : 'Meilleur : —';
+        const preEl=$('pre-best-pill'); if(preEl) preEl.textContent=`Meilleur : ${getPreBest()}/${PREFIXES.length}`;
+      };
 
       const setTimeBtnLabel=()=>{
         const label = (timePerCard===Infinity)?'∞':`${timePerCard}s`;
@@ -573,6 +597,7 @@
         $('input').value = '';
         $('input').disabled = false;
         ['check','reveal','next','hint','time-btn'].forEach(id=>$(id).disabled=false);
+        $('next').hidden = true;
         $('finish-actions').hidden = true;
         $('input').focus();
         prefetchNext(3);
@@ -589,6 +614,7 @@
         $('accepted').innerHTML = '';
         $('input').disabled = true;
         ['check','reveal','next','hint'].forEach(id=>$(id).disabled=true);
+        $('next').hidden = true;
         $('finish-actions').hidden = false;
         setBest(score);
         updateBestHome();
@@ -617,8 +643,8 @@
           correctSet.add(g.k);
           score++;
           $('score').textContent = `Score : ${score}`;
-          setTimeout(nextCard, 350);
           $('accepted').innerHTML = '';
+          setTimeout(nextCard, 350);
         } else if(!ok){
           const syn = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;
           let extra = '';
@@ -627,6 +653,7 @@
             if(arr.length){ extra = `<br><span class="hint">Mnémotechnique : ${arr[Math.floor(Math.random()*arr.length)]}</span>`; }
           }
           $('accepted').innerHTML = syn + extra;
+          $('next').hidden = false;
         }
       }
 
@@ -637,6 +664,7 @@
         $('msg').textContent = 'Révélé.';
         $('accepted').innerHTML = `<span class="hint">Réponse attendue : <span class="answer">${g.l}</span>. Synonymes : ${g.a.join(', ')}</span>`;
         $('live').textContent = $('msg').textContent;
+        $('next').hidden = false;
       }
 
       function showHint(){
@@ -685,16 +713,18 @@
           preOrder = shuffleArr([...PREFIXES.keys()]);
           preIdx = 0; preScore = 0; preFinished = false;
           $('pre-finish-actions').hidden = true;
+          $('pre-next').hidden = true;
         }
         function renderPrefix(){
           const p = PREFIXES[preOrder[preIdx]];
-          $('pre-card').textContent = p.n + (p.n>1?' carbones':' carbone');
+          $('pre-card').textContent = p.n + (p.n>1?' carbones':' carbone') + ' dans la chaine principale';
           $('pre-prog').textContent = `${preIdx+1}/${PREFIXES.length}`;
           $('pre-score').textContent = `Score : ${preScore}`;
           $('pre-input').value = '';
           $('pre-input').focus();
           $('pre-msg').className='msg';
           $('pre-msg').textContent='';
+          $('pre-next').hidden = true;
         }
         function checkPre(){
           if(preFinished) return;
@@ -702,18 +732,24 @@
           const p = PREFIXES[preOrder[preIdx]];
           const ok = p.a.some(x=>norm(x)===ans);
           $('pre-msg').className = 'msg ' + (ok?'ok':'bad');
-          $('pre-msg').textContent = ok? 'Correct !' : `Mauvaise réponse — ${p.l}-`;
+             if(ok){
+            $('pre-msg').textContent = 'Correct !';
+            preScore++;
+            $('pre-score').textContent = `Score : ${preScore}`;
+            setTimeout(nextPre, 350);
+          } else {
+            $('pre-msg').textContent = `Réponse : ${p.l}-`;
+            $('pre-next').hidden = false;
+          }
           $('pre-live').textContent = $('pre-msg').textContent;
-          if(ok) preScore++;
-          preFinished = true;
-          $('pre-score').textContent = `Score : ${preScore}`;
         }
         function nextPre(){
-          if(!preFinished) checkPre();
           if(preIdx + 1 >= PREFIXES.length){
             $('pre-msg').className='msg';
             $('pre-msg').textContent = `Terminé ! Score : ${preScore}/${PREFIXES.length}`;
             $('pre-finish-actions').hidden=false;
+            setPreBest(preScore);
+            updateBestHome();
           } else {
             preIdx++; preFinished=false; renderPrefix();
           }
@@ -725,6 +761,7 @@
           $('pre-msg').textContent=`Réponse : ${p.l}-`;
           $('pre-live').textContent = $('pre-msg').textContent;
           preFinished=true;
+          $('pre-next').hidden=false;
         }
         function hintPre(){
           if(preFinished) return;
@@ -747,10 +784,12 @@
         let priOrder = [];
         const priorityList = $('priority-list');
         let dragEl = null;
-        priorityList.addEventListener('dragstart', e=>{ if(e.target.classList.contains('priority-item')) dragEl=e.target; });
-        priorityList.addEventListener('dragover', e=>{ e.preventDefault(); });
-        priorityList.addEventListener('drop', e=>{ e.preventDefault(); const t=e.target; if(t.classList.contains('priority-item') && dragEl && t!==dragEl){ const items=[...priorityList.children]; const src=items.indexOf(dragEl); const dst=items.indexOf(t); if(src<dst) priorityList.insertBefore(dragEl,t.nextSibling); else priorityList.insertBefore(dragEl,t); }});
-        function renderPriority(){
+        priorityList.addEventListener('dragstart', e=>{ if(e.target.classList.contains('priority-item')){ dragEl=e.target; dragEl.classList.add('dragging'); }});
+        priorityList.addEventListener('dragend', ()=>{ if(dragEl){ dragEl.classList.remove('dragging'); dragEl=null; } [...priorityList.children].forEach(li=>li.classList.remove('over-top','over-bottom')); });
+        priorityList.addEventListener('dragover', e=>{ e.preventDefault(); const t=e.target; if(t.classList.contains('priority-item') && dragEl && t!==dragEl){ const rect=t.getBoundingClientRect(); const after=e.clientY>rect.top+rect.height/2; t.classList.toggle('over-bottom',after); t.classList.toggle('over-top',!after); }});
+        priorityList.addEventListener('dragleave', e=>{ if(e.target.classList.contains('priority-item')) e.target.classList.remove('over-top','over-bottom'); });
+        priorityList.addEventListener('drop', e=>{ e.preventDefault(); const t=e.target; if(t.classList.contains('priority-item') && dragEl && t!==dragEl){ const items=[...priorityList.children]; const after=t.classList.contains('over-bottom'); t.classList.remove('over-top','over-bottom'); const dst=items.indexOf(t)+(after?1:0); priorityList.insertBefore(dragEl, items[dst]||null); }});
+      function renderPriority(){
           priorityList.innerHTML='';
           priOrder.forEach(k=>{
             const li=document.createElement('li');
@@ -773,6 +812,7 @@
           for(let i=0;i<PRIORITY_ORDER.length;i++){ if(order[i]!==PRIORITY_ORDER[i]){ ok=false; break; }}
           $('priority-msg').className='msg ' + (ok?'ok':'bad');
           $('priority-msg').textContent = ok? 'Parfait !':'Ordre incorrect';
+          if(ok){ setPriorityBest(); updateBestHome(); }
         }
         $('priority-check').addEventListener('click', checkPriority);
         $('priority-restart').addEventListener('click', restartPriority);
@@ -786,7 +826,7 @@
         const prefixes = $('prefixes');
         const priority = $('priority');
         const crumbs = $('breadcrumbs');
-        $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
+        $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; updateBestHome(); });
         $('back-home-chimie').addEventListener('click', ()=>{ chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
         $('open-pratique').addEventListener('click', ()=>{ chimie.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; updateBestHome(); });
         $('open-prefixes').addEventListener('click', ()=>{ chimie.hidden=true; prefixes.hidden=false; crumbs.textContent='Préfixes grecs'; resetPrefixes(); renderPrefix(); });
@@ -1054,6 +1094,8 @@
         $('inv-msg').className = 'msg';
         $('inv-msg').textContent = `Session terminée — Score : ${invCorrect}/${G.length}`;
         $('inv-finish').hidden = false;
+        setInvBest(invCorrect);
+        updateBestHome();
       }
 
       $('inv-restart').addEventListener('click', ()=>{
@@ -1194,6 +1236,7 @@
           if(t<best) localStorage.matchBest=t;
           const bestMsg=isFinite(best)?Math.min(t,best):t;
           $('match-msg').textContent+=` — Temps : ${t}s (Meilleur : ${bestMsg}s)`;
+          updateBestHome();
         }
       }
 
