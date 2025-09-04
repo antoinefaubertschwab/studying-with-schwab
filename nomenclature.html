@@ -30,7 +30,7 @@
 
     function nouvelleQuestion() {
       current = generateMolecule();
-      descEl.textContent = JSON.stringify(current.description, null, 2);
+      descEl.textContent = current.description.formule;
       answerEl.textContent = '';
       guessEl.value = '';
       guessEl.focus();
