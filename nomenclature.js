@@ -71,6 +71,32 @@ function buildPrefix(groups) {
     .join("-");
 }
 
+function lexCompare(a, b) {
+  const len = Math.max(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const diff = (a[i] || 0) - (b[i] || 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
+
+function shouldReverse(n, subs, halos, positionsFG) {
+  const mirror = (p) => n + 1 - p;
+  const seq = [
+    [...positionsFG].sort((a, b) => a - b),
+    subs.map((s) => s.position).sort((a, b) => a - b),
+    halos.map((h) => h.position).sort((a, b) => a - b),
+  ];
+  const seqRev = [
+    positionsFG.map(mirror).sort((a, b) => a - b),
+    subs.map((s) => mirror(s.position)).sort((a, b) => a - b),
+    halos.map((h) => mirror(h.position)).sort((a, b) => a - b),
+  ];
+  const flatSeq = [].concat(...seq);
+  const flatRev = [].concat(...seqRev);
+  return lexCompare(flatRev, flatSeq) < 0;
+}
+
 function attach(base, formula) {
   if (base.startsWith("CH3")) {
     return base.replace("CH3", `CH2(${formula})`);
@@ -80,6 +106,12 @@ function attach(base, formula) {
   }
   if (base.startsWith("CH(") || base.startsWith("C(")) {
     return base.replace("(", `(${formula},`);
+  }
+  if (base.startsWith("C(=O)H")) {
+    return base.replace("C(=O)H", `C(${formula})(=O)H`);
+  }
+  if (base.startsWith("C(=O)")) {
+    return base.replace("C(=O)", `C(${formula})(=O)`);
   }
   if (base.startsWith("CHO")) {
     return base.replace("CHO", `C(${formula})O`);
@@ -99,10 +131,10 @@ function buildSemiDeveloped(n, subs, halos, groupe, positionsFG) {
     }
   } else if (groupe === "cétone") {
     for (const p of positionsFG) {
-      carbons[p - 1] = "CO";
+    carbons[p - 1] = "C(=O)";
     }
   } else if (groupe === "aldéhyde") {
-    carbons[0] = "CHO";
+    carbons[0] = "C(=O)H";
   }
 
   for (const s of subs) {
@@ -165,6 +197,14 @@ function generateMolecule() {
   } else if (groupe.k === "alcène" || groupe.k === "alcyne") {
     positionsFG = [randInt(1, n - 1)];
   }
+ 
+    if (shouldReverse(n, subs, halos, positionsFG)) {
+    const mirror = (p) => n + 1 - p;
+    subs.forEach((s) => (s.position = mirror(s.position)));
+    halos.forEach((h) => (h.position = mirror(h.position)));
+    positionsFG = positionsFG.map(mirror);
+  }
+
 
   subs.sort((a, b) => a.position - b.position);
   halos.sort((a, b) => a.position - b.position);
