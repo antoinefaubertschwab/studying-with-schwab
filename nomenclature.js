@@ -186,7 +186,7 @@ function generateMolecule() {
   // positions of functional group
   let positionsFG = [];
   if (groupe.k === "alcool") {
-    const nb = randInt(1, 2);
+    const nb = randInt(1, Math.min(2, n));
     const set = new Set();
     while (set.size < nb) set.add(randInt(1, n));
     positionsFG = [...set].sort((a, b) => a - b);
@@ -198,6 +198,7 @@ function generateMolecule() {
     positionsFG = [randInt(1, n - 1)];
   }
  
+   
     if (shouldReverse(n, subs, halos, positionsFG)) {
     const mirror = (p) => n + 1 - p;
     subs.forEach((s) => (s.position = mirror(s.position)));
