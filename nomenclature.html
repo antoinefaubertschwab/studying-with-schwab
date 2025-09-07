@@ -5,7 +5,7 @@
   <title>Quiz de nomenclature</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 10px; line-height: 1.5; }
-    pre { background: #f7f7f7; padding: 10px; border-radius: 4px; }
+    #desc { background: #f7f7f7; padding: 10px; border-radius: 4px; font-size: 1.4rem; text-align: center; font-family: monospace; }
     input { width: 100%; padding: 6px; font-size: 1rem; box-sizing: border-box; }
     button { margin-top: 8px; padding: 6px 12px; font-size: 1rem; }
     #answer { margin-top: 12px; font-weight: bold; }
@@ -13,36 +13,82 @@
 </head>
 <body>
   <h1>Quiz de nomenclature</h1>
-  <pre id="desc"></pre>
+  <div id="desc"></div>
   <input id="guess" type="text" placeholder="Nom de la molécule" />
   <div>
+    <button id="home" type="button">Accueil</button>
+    <button id="check" type="button">Vérifier</button>
     <button id="reveal" type="button">Voir la solution</button>
     <button id="next" type="button">Nouvelle molécule</button>
   </div>
   <div id="answer"></div>
+  <div id="score"></div>
 
   <script src="nomenclature.js"></script>
   <script>
     const descEl = document.getElementById('desc');
     const answerEl = document.getElementById('answer');
     const guessEl = document.getElementById('guess');
+    const scoreEl = document.getElementById('score');
     let current;
+    let score = 0;
+    let total = 0;
+
+    function formatFormula(str) {
+      return str.replace(/(\d+)/g, '<sub>$1</sub>');
+    }
+
+    function normalizeName(str) {
+      return str
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '');
+    }
+
+    function updateScore() {
+      const pct = total ? Math.round((score / total) * 100) : 0;
+      scoreEl.textContent = `Score : ${score}/${total} (${pct}%)`;
+    }
 
     function nouvelleQuestion() {
       current = generateMolecule();
-      descEl.textContent = current.description.formule;
+      descEl.innerHTML = formatFormula(current.description.formule);
       answerEl.textContent = '';
       guessEl.value = '';
       guessEl.focus();
     }
+    function verifier() {
+      const guess = normalizeName(guessEl.value);
+      const correct = normalizeName(current.nom);
+      total++;
+      if (guess && guess === correct) {
+        score++;
+        answerEl.textContent = 'Correct !';
+      } else {
+        answerEl.textContent = 'Incorrect. Nom correct : ' + current.nom;
+      }
+      updateScore();
+    }
 
+    
     document.getElementById('reveal').addEventListener('click', () => {
       answerEl.textContent = 'Nom correct : ' + current.nom;
     });
 
+        document.getElementById('check').addEventListener('click', verifier);
+    guessEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') verifier();
+    });
+
     document.getElementById('next').addEventListener('click', nouvelleQuestion);
 
+        document.getElementById('home').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+    
     nouvelleQuestion();
+    updateScore();
   </script>
 </body>
 </html>
