@@ -317,7 +317,10 @@
          Pratique
         </button>
         <div class="pill">Flashcards GF</div>
-        <button class="btn ghost" id="gf-help" type="button">Aide</button>
+          <div style="display:flex;gap:12px">
+          <button class="btn ghost" id="home-gf" type="button">Accueil</button>
+          <button class="btn ghost" id="gf-help" type="button">Aide</button>
+        </div>
       </div>
 
       <h2 style="margin:0 0 6px 0;font-size:20px">Flashcards inverses — Groupements fonctionnels (18)</h2>
@@ -362,7 +365,10 @@
         <div class="pill">Mode inverse</div>
         <div class="pill" id="inv-prog">0/18</div>
         <div class="pill" id="inv-score">Score : 0</div>
-        <button class="btn ghost" id="builder-help" type="button">Aide</button>
+           <div style="display:flex;gap:12px">
+          <button class="btn ghost" id="home-builder" type="button">Accueil</button>
+          <button class="btn ghost" id="builder-help" type="button">Aide</button>
+        </div>
       </div>
 
       <h2 style="margin:0 0 6px 0;font-size:20px">Construis : <span id="inv-target"></span></h2>
@@ -410,7 +416,10 @@
         </button>
         <div class="pill">Match GF</div>
         <div class="pill" id="match-timer">0s</div>
-        <button class="btn ghost" id="match-help" type="button">Aide</button>
+          <div style="display:flex;gap:12px">
+          <button class="btn ghost" id="home-match" type="button">Accueil</button>
+          <button class="btn ghost" id="match-help" type="button">Aide</button>
+        </div>
       </div>
       <h2 style="margin:0 0 6px 0;font-size:20px">Associe chaque structure à son nom</h2>
       <p class="sub" style="margin-bottom:12px">Clique une structure puis un nom pour créer un lien.</p>
@@ -433,7 +442,10 @@
             Pratique
           </button>
           <div class="pill">Priorité GF</div>
-          <button class="btn ghost" id="priority-help" type="button">Aide</button>
+          <div style="display:flex;gap:12px">
+            <button class="btn ghost" id="home-priority" type="button">Accueil</button>
+            <button class="btn ghost" id="priority-help" type="button">Aide</button>
+          </div>
         </div>
         <p class="sub" style="margin-bottom:12px">Glisse les groupes du plus prioritaire au moins prioritaire.</p>
           <div class="priority-container">
@@ -862,6 +874,7 @@
         $('back-chimie').addEventListener('click', ()=>{ fgHub.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
         $('open-gf').addEventListener('click', ()=>{ fgHub.hidden=true; gf.hidden=false; crumbs.textContent='Flashcards GF'; render(); });
         $('back-home').addEventListener('click', ()=>{ gf.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(tId); updateBestHome(); });
+        $('home-gf').addEventListener('click', ()=>{ gf.hidden=true; fgHub.hidden=true; chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; clearInterval(tId); updateBestHome(); });
         $('open-inverse').addEventListener('click', ()=>{
           fgHub.hidden=true;
           builder.hidden=false;
@@ -873,11 +886,14 @@
           updateScore();
           startInverse();
         });
-            $('back-home-builder').addEventListener('click', ()=>{ builder.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; });
+        $('back-home-builder').addEventListener('click', ()=>{ builder.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; });
+        $('home-builder').addEventListener('click', ()=>{ builder.hidden=true; fgHub.hidden=true; chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
         $('open-match').addEventListener('click', ()=>{ fgHub.hidden=true; match.hidden=false; crumbs.textContent='Match GF'; startMatch(); });
         $('open-priority').addEventListener('click', ()=>{ fgHub.hidden=true; priority.hidden=false; crumbs.textContent='Priorité GF'; restartPriority(); });
         $('back-match').addEventListener('click', ()=>{ match.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; clearInterval(matchTimerId); });
+        $('home-match').addEventListener('click', ()=>{ match.hidden=true; fgHub.hidden=true; chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; clearInterval(matchTimerId); });
         $('back-priority').addEventListener('click', ()=>{ priority.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; });
+        $('home-priority').addEventListener('click', ()=>{ priority.hidden=true; fgHub.hidden=true; chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
         $('gf-help').addEventListener('click', ()=>{
           alert('Tape le nom du groupe.\nUtilise Mélanger, Indice ou Révéler selon le besoin.');
         });
