@@ -1,6 +1,7 @@
 const CHAINS = [
   "méthane", "éthane", "propane", "butane", "pentane",
   "hexane", "heptane", "octane", "nonane", "décane",
+  "undécane", "dodécane",
 ];
 
 const SUBSTITUANTS = [
@@ -160,9 +161,12 @@ function buildSemiDeveloped(n, subs, halos, groupe, positionsFG) {
 }
 
 function generateMolecule() {
-  const n = randInt(1, 10);
+  const n = randInt(1, 12);
   const chaine = CHAINS[n - 1];
-  const groupe = GROUPES[randInt(0, GROUPES.length - 1)];
+    let groupe = GROUPES[randInt(0, GROUPES.length - 1)];
+  if (groupe.k !== "aldéhyde" && Math.random() < 0.2) {
+    groupe = GROUPES.find((g) => g.k === "aldéhyde");
+  }
 
   const subs = [];
   const nbSub = randInt(0, 2);
@@ -215,34 +219,33 @@ function generateMolecule() {
   const prefix = [prefixHalo, prefixSub].filter(Boolean).join("-");
 
   let nom;
-    if (groupe.k === "alcane" || groupe.k === "halogénure") {
-    nom = `${prefix ? prefix + '-' : ''}${chaine}`;
+     if (groupe.k === "alcane" || groupe.k === "halogénure") {
+    nom = `${prefix}${chaine}`;
   } else if (groupe.k === "alcène" || groupe.k === "alcyne") {
     const racine = CHAINS[n - 1].replace(/ane$/, "");
-       nom = `${prefix ? prefix + '-' : ''}${racine}-${positionsFG[0]}-${groupe.suffixe}`;
+          nom = `${prefix}${racine}-${positionsFG[0]}-${groupe.suffixe}`;
   } else if (groupe.k === "alcool") {
     const count = positionsFG.length;
     const base = count === 1 ? chaine.replace(/e$/, "") : chaine;
     const multi = MULTIPLICATIVE_PREFIXES[count];
     const pos = positionsFG.join(",");
     const suf = count === 1 ? `${pos}-${groupe.suffixe}` : `${pos}-${multi}${groupe.suffixe}`;
-    nom = `${prefix ? prefix + '-' : ''}${base}-${suf}`;
+       nom = `${prefix}${base}-${suf}`;
   } else if (groupe.k === "cétone") {
     const base = chaine.replace(/e$/, "");
     const pos = positionsFG.join(",");
-    nom = `${prefix ? prefix + '-' : ''}${base}-${pos}-one`;
+    nom = `${prefix}${base}-${pos}-one`;
   } else if (groupe.k === "aldéhyde") {
     const base = chaine.replace(/e$/, "");
-    nom = `${prefix ? prefix + '-' : ''}${base}al`;
+    nom = `${prefix}${base}al`;
   }
 
-   const formule = buildSemiDeveloped(n, subs, halos, groupe.k, positionsFG);
-
+  const formule = buildSemiDeveloped(n, subs, halos, groupe.k, positionsFG);
+  
   return {
-    description: {
-    formule,
-    },
+    description: { formule },
     nom,
+    struct: { n, subs, halos, groupe: groupe.k, positionsFG },
   };
 }
 
