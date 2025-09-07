@@ -14,6 +14,7 @@
 <body>
   <h1>Quiz de nomenclature</h1>
   <div id="desc"></div>
+  <canvas id="struct" width="400" height="200"></canvas>
   <input id="guess" type="text" placeholder="Nom de la molécule" />
   <div>
     <button id="home" type="button">Accueil</button>
@@ -30,6 +31,10 @@
     const answerEl = document.getElementById('answer');
     const guessEl = document.getElementById('guess');
     const scoreEl = document.getElementById('score');
+    const structCanvas = document.getElementById('struct');
+    const structCtx = structCanvas.getContext('2d');
+    structCtx.lineWidth = 2;
+    structCtx.font = '12px sans-serif';
     let current;
     let score = 0;
     let total = 0;
@@ -54,6 +59,7 @@
     function nouvelleQuestion() {
       current = generateMolecule();
       descEl.innerHTML = formatFormula(current.description.formule);
+      drawMolecule(current.struct);
       answerEl.textContent = '';
       guessEl.value = '';
       guessEl.focus();
@@ -89,6 +95,89 @@
     
     nouvelleQuestion();
     updateScore();
+    
+    function drawBond(a, b, order) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len = Math.hypot(dx, dy);
+      const offsetX = (-dy / len) * 3;
+      const offsetY = (dx / len) * 3;
+      structCtx.beginPath();
+      if (order === 1) {
+        structCtx.moveTo(a.x, a.y);
+        structCtx.lineTo(b.x, b.y);
+      } else if (order === 2) {
+        structCtx.moveTo(a.x + offsetX, a.y + offsetY);
+        structCtx.lineTo(b.x + offsetX, b.y + offsetY);
+        structCtx.moveTo(a.x - offsetX, a.y - offsetY);
+        structCtx.lineTo(b.x - offsetX, b.y - offsetY);
+      } else if (order === 3) {
+        structCtx.moveTo(a.x + 2 * offsetX, a.y + 2 * offsetY);
+        structCtx.lineTo(b.x + 2 * offsetX, b.y + 2 * offsetY);
+        structCtx.moveTo(a.x, a.y);
+        structCtx.lineTo(b.x, b.y);
+        structCtx.moveTo(a.x - 2 * offsetX, a.y - 2 * offsetY);
+        structCtx.lineTo(b.x - 2 * offsetX, b.y - 2 * offsetY);
+      }
+      structCtx.stroke();
+    }
+
+    function drawBranch(label, c, dir, order = 1) {
+      const length = 25;
+      const end = { x: c.x, y: c.y + dir * length };
+      drawBond(c, end, order);
+      structCtx.fillText(label, end.x - 10, end.y + (dir < 0 ? -4 : 12));
+    }
+
+    function drawMolecule(data) {
+      structCtx.clearRect(0, 0, structCanvas.width, structCanvas.height);
+      const { n, subs, halos, groupe, positionsFG } = data;
+      const step = 30;
+      const baseY = structCanvas.height / 2;
+      const zig = 15;
+      const coords = [];
+      for (let i = 0; i < n; i++) {
+        const x = 20 + i * step;
+        const y = baseY + (i % 2 === 0 ? -zig : zig);
+        coords.push({ x, y });
+        if (i > 0) {
+          let order = 1;
+          if (groupe === 'alcène' && positionsFG[0] === i) order = 2;
+          if (groupe === 'alcyne' && positionsFG[0] === i) order = 3;
+          drawBond(coords[i - 1], coords[i], order);
+        }
+      }
+
+      subs.forEach((s) => {
+        const c = coords[s.position - 1];
+        const dir = s.position % 2 === 0 ? 1 : -1;
+        drawBranch(SUB_FORMULES[s.sub], c, dir);
+      });
+
+      halos.forEach((h) => {
+        const c = coords[h.position - 1];
+        const dir = h.position % 2 === 0 ? -1 : 1;
+        drawBranch(HALO_SYMBOLS[h.name], c, dir);
+      });
+
+      if (groupe === 'alcool') {
+        positionsFG.forEach((p) => {
+          const c = coords[p - 1];
+          const dir = p % 2 === 0 ? -1 : 1;
+          drawBranch('OH', c, dir);
+        });
+      } else if (groupe === 'cétone') {
+        positionsFG.forEach((p) => {
+          const c = coords[p - 1];
+          const dir = p % 2 === 0 ? -1 : 1;
+          drawBranch('O', c, dir, 2);
+        });
+      } else if (groupe === 'aldéhyde') {
+        const c = coords[0];
+        drawBranch('O', c, -1, 2);
+        drawBranch('H', c, 1);
+      }
+    }
   </script>
 </body>
 </html>
