@@ -4,17 +4,31 @@
   <meta charset="utf-8" />
   <title>Quiz de nomenclature</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 10px; line-height: 1.5; }
-    #desc { background: #f7f7f7; padding: 10px; border-radius: 4px; font-size: 1.4rem; text-align: center; font-family: monospace; }
+       body {
+      font-family: system-ui, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 10px;
+      line-height: 1.5;
+    }
+    #desc {
+      background: #f7f7f7;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 1.4rem;
+      text-align: center;
+      font-family: monospace;
+    }
     input { width: 100%; padding: 6px; font-size: 1rem; box-sizing: border-box; }
     button { margin-top: 8px; padding: 6px 12px; font-size: 1rem; }
     #answer { margin-top: 12px; font-weight: bold; }
+    canvas { display: block; margin: 20px auto; }
   </style>
 </head>
 <body>
   <h1>Quiz de nomenclature</h1>
   <div id="desc"></div>
-  <canvas id="struct" width="400" height="200"></canvas>
+  <canvas id="struct" width="800" height="400"></canvas>
   <input id="guess" type="text" placeholder="Nom de la molécule" />
   <div>
     <button id="home" type="button">Accueil</button>
@@ -32,9 +46,19 @@
     const guessEl = document.getElementById('guess');
     const scoreEl = document.getElementById('score');
     const structCanvas = document.getElementById('struct');
+    const dpr = window.devicePixelRatio || 1;
+    const displayWidth = 800;
+    const displayHeight = 400;
+    structCanvas.width = displayWidth * dpr;
+    structCanvas.height = displayHeight * dpr;
+    structCanvas.style.width = displayWidth + 'px';
+    structCanvas.style.height = displayHeight + 'px';
     const structCtx = structCanvas.getContext('2d');
+    structCtx.scale(dpr, dpr);
     structCtx.lineWidth = 2;
-    structCtx.font = '12px sans-serif';
+    structCtx.lineCap = 'round';
+    structCtx.lineJoin = 'round';
+    structCtx.font = '16px sans-serif';
     let current;
     let score = 0;
     let total = 0;
@@ -123,21 +147,23 @@
     }
 
     function drawBranch(label, c, dir, order = 1) {
-      const length = 25;
+      const length = 35;
       const end = { x: c.x, y: c.y + dir * length };
       drawBond(c, end, order);
-      structCtx.fillText(label, end.x - 10, end.y + (dir < 0 ? -4 : 12));
+      const textWidth = structCtx.measureText(label).width;
+      structCtx.fillText(label, end.x - textWidth / 2, end.y + (dir < 0 ? -6 : 16));
     }
 
     function drawMolecule(data) {
-      structCtx.clearRect(0, 0, structCanvas.width, structCanvas.height);
+    structCtx.clearRect(0, 0, displayWidth, displayHeight);
       const { n, subs, halos, groupe, positionsFG } = data;
-      const step = 30;
-      const baseY = structCanvas.height / 2;
-      const zig = 15;
+      const step = 60;
+      const baseY = displayHeight / 2;
+      const zig = 20;
       const coords = [];
+      const startX = (displayWidth - (n - 1) * step) / 2;
       for (let i = 0; i < n; i++) {
-        const x = 20 + i * step;
+        const x = startX + i * step;
         const y = baseY + (i % 2 === 0 ? -zig : zig);
         coords.push({ x, y });
         if (i > 0) {
