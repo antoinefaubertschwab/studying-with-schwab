@@ -11,6 +11,7 @@ const SUBSTITUANTS = (() => {
     const formula = len === 1 ? "CH3" : "CH2".repeat(len - 1) + "CH3";
     return { name, formula, len };
   });
+  subs.push({ name: "isopropyl", formula: "CH(CH3)2", len: 3 });
   subs.push({ name: "isobutyl", formula: "CH2CH(CH3)2", len: 4 });
   subs.push({ name: "sec-butyl", formula: "CH(CH3)CH2CH3", len: 4 });
   subs.push({ name: "tert-butyl", formula: "C(CH3)3", len: 4 });
@@ -84,13 +85,13 @@ function shouldReverse(n, subs, halos, positionsFG) {
   const mirror = (p) => n + 1 - p;
   const seq = [
     [...positionsFG].sort((a, b) => a - b),
-    subs.map((s) => s.position).sort((a, b) => a - b),
     halos.map((h) => h.position).sort((a, b) => a - b),
+    subs.map((s) => s.position).sort((a, b) => a - b),
   ];
   const seqRev = [
     positionsFG.map(mirror).sort((a, b) => a - b),
-    subs.map((s) => mirror(s.position)).sort((a, b) => a - b),
     halos.map((h) => mirror(h.position)).sort((a, b) => a - b),
+    subs.map((s) => mirror(s.position)).sort((a, b) => a - b),
   ];
   const flatSeq = [].concat(...seq);
   const flatRev = [].concat(...seqRev);
