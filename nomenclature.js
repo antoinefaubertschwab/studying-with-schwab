@@ -4,10 +4,18 @@ const CHAINS = [
   "undécane", "dodécane",
 ];
 
-const SUBSTITUANTS = [
-  "méthyl",
-  "éthyl",
-];
+const SUBSTITUANTS = (() => {
+  const subs = CHAINS.map((c, i) => {
+    const len = i + 1;
+    const name = c.replace(/ane$/, "yl");
+    const formula = len === 1 ? "CH3" : "CH2".repeat(len - 1) + "CH3";
+    return { name, formula, len };
+  });
+  subs.push({ name: "isobutyl", formula: "CH2CH(CH3)2", len: 4 });
+  subs.push({ name: "sec-butyl", formula: "CH(CH3)CH2CH3", len: 4 });
+  subs.push({ name: "tert-butyl", formula: "C(CH3)3", len: 4 });
+  return subs;
+})();
 
 const HALO_PREFIXES = {
   F: "fluoro",
@@ -22,10 +30,9 @@ const HALO_SYMBOLS = {
   iodo: "I",
 };
 
-const SUB_FORMULES = {
-  "méthyl": "CH3",
-  "éthyl": "CH2CH3",
-};
+const SUB_FORMULES = Object.fromEntries(
+  SUBSTITUANTS.map((s) => [s.name, s.formula])
+);
 
 const MULTIPLICATIVE_PREFIXES = ["", "mono", "di", "tri", "tétr", "penta", "hexa"]; // limited
 
@@ -161,11 +168,14 @@ function generateMolecule() {
   }
 
   const subs = [];
-  const nbSub = randInt(0, 2);
-  for (let i = 0; i < nbSub; i++) {
-    const sub = SUBSTITUANTS[randInt(0, SUBSTITUANTS.length - 1)];
-    const position = randInt(1, n);
-    subs.push({ position, sub });
+    const possibleSubs = SUBSTITUANTS.filter((s) => n >= 2 * s.len + 1);
+  if (possibleSubs.length > 0) {
+    const nbSub = randInt(1, Math.min(2, possibleSubs.length));
+    for (let i = 0; i < nbSub; i++) {
+      const sub = possibleSubs[randInt(0, possibleSubs.length - 1)];
+      const position = randInt(sub.len + 1, n - sub.len);
+      subs.push({ position, sub: sub.name });
+    }
   }
   
 
