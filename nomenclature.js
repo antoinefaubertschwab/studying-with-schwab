@@ -7,10 +7,6 @@ const CHAINS = [
 const SUBSTITUANTS = [
   "méthyl",
   "éthyl",
-  "propyl",
-  "isopropyl",
-  "butyl",
-  "heptyl",
 ];
 
 const HALO_PREFIXES = {
@@ -29,10 +25,6 @@ const HALO_SYMBOLS = {
 const SUB_FORMULES = {
   "méthyl": "CH3",
   "éthyl": "CH2CH3",
-  "propyl": "CH2CH2CH3",
-  "isopropyl": "CH(CH3)2",
-  "butyl": "CH2CH2CH2CH3",
-  "heptyl": "CH2CH2CH2CH2CH2CH2CH3",
 };
 
 const MULTIPLICATIVE_PREFIXES = ["", "mono", "di", "tri", "tétr", "penta", "hexa"]; // limited
@@ -207,7 +199,7 @@ function generateMolecule() {
     const mirror = (p) => n + 1 - p;
     subs.forEach((s) => (s.position = mirror(s.position)));
     halos.forEach((h) => (h.position = mirror(h.position)));
-    positionsFG = positionsFG.map(mirror);
+    positionsFG = positionsFG.map(mirror).sort((a, b) => a - b);
   }
 
 
