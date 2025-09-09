@@ -163,33 +163,11 @@ function buildSemiDeveloped(n, subs, halos, groupe, positionsFG) {
 function generateMolecule() {
   const n = randInt(1, 12);
   const chaine = CHAINS[n - 1];
-    let groupe = GROUPES[randInt(0, GROUPES.length - 1)];
+  let groupe = GROUPES[randInt(0, GROUPES.length - 1)];
   if (groupe.k !== "aldéhyde" && Math.random() < 0.2) {
     groupe = GROUPES.find((g) => g.k === "aldéhyde");
   }
 
-  const subs = [];
-    const possibleSubs = SUBSTITUANTS.filter((s) => n >= 2 * s.len + 1);
-  if (possibleSubs.length > 0) {
-    const nbSub = randInt(1, Math.min(2, possibleSubs.length));
-    for (let i = 0; i < nbSub; i++) {
-      const sub = possibleSubs[randInt(0, possibleSubs.length - 1)];
-      const position = randInt(sub.len + 1, n - sub.len);
-      subs.push({ position, sub: sub.name });
-    }
-  }
-  
-
-  const halos = [];
-  if (groupe.k === "halogénure") {
-    const halogens = Object.entries(HALO_PREFIXES);
-    const nbHalo = randInt(1, 2);
-    for (let i = 0; i < nbHalo; i++) {
-      const [_, name] = halogens[randInt(0, halogens.length - 1)];
-      const position = randInt(1, n);
-      halos.push({ position, name });
-    }
-  }
   // positions of functional group
   let positionsFG = [];
   if (groupe.k === "alcool") {
@@ -204,15 +182,46 @@ function generateMolecule() {
   } else if (groupe.k === "alcène" || groupe.k === "alcyne") {
     positionsFG = [randInt(1, n - 1)];
   }
+
+
+  const subs = [];
+  const possibleSubs = SUBSTITUANTS.filter((s) => n >= 2 * s.len + 1);
+  if (possibleSubs.length > 0) {
+    const nbSub = randInt(1, Math.min(2, possibleSubs.length));
+    for (let i = 0; i < nbSub; i++) {
+      const sub = possibleSubs[randInt(0, possibleSubs.length - 1)];
+      const available = [];
+      for (let p = sub.len + 1; p <= n - sub.len; p++) {
+        if (!positionsFG.includes(p)) available.push(p);
+      }
+      if (available.length === 0) continue;
+      const position = available[randInt(0, available.length - 1)];
+      subs.push({ position, sub: sub.name });
+    }
+  }
+  
+  const halos = [];
+  if (groupe.k === "halogénure") {
+    const halogens = Object.entries(HALO_PREFIXES);
+    const nbHalo = randInt(1, 2);
+    for (let i = 0; i < nbHalo; i++) {
+      const [_, name] = halogens[randInt(0, halogens.length - 1)];
+      const available = [];
+      for (let p = 1; p <= n; p++) {
+        if (!positionsFG.includes(p)) available.push(p);
+      }
+      if (available.length === 0) break;
+      const position = available[randInt(0, available.length - 1)];
+      halos.push({ position, name });
+    }
+  }
  
-   
-    if (shouldReverse(n, subs, halos, positionsFG)) {
+  if (shouldReverse(n, subs, halos, positionsFG)) {
     const mirror = (p) => n + 1 - p;
     subs.forEach((s) => (s.position = mirror(s.position)));
     halos.forEach((h) => (h.position = mirror(h.position)));
     positionsFG = positionsFG.map(mirror).sort((a, b) => a - b);
   }
-
 
   subs.sort((a, b) => a.position - b.position);
   halos.sort((a, b) => a.position - b.position);
@@ -222,18 +231,18 @@ function generateMolecule() {
   const prefix = [prefixHalo, prefixSub].filter(Boolean).join("-");
 
   let nom;
-     if (groupe.k === "alcane" || groupe.k === "halogénure") {
+  if (groupe.k === "alcane" || groupe.k === "halogénure") {
     nom = `${prefix}${chaine}`;
   } else if (groupe.k === "alcène" || groupe.k === "alcyne") {
     const racine = CHAINS[n - 1].replace(/ane$/, "");
-          nom = `${prefix}${racine}-${positionsFG[0]}-${groupe.suffixe}`;
+    nom = `${prefix}${racine}-${positionsFG[0]}-${groupe.suffixe}`;
   } else if (groupe.k === "alcool") {
     const count = positionsFG.length;
     const base = count === 1 ? chaine.replace(/e$/, "") : chaine;
     const multi = MULTIPLICATIVE_PREFIXES[count];
     const pos = positionsFG.join(",");
     const suf = count === 1 ? `${pos}-${groupe.suffixe}` : `${pos}-${multi}${groupe.suffixe}`;
-       nom = `${prefix}${base}-${suf}`;
+    nom = `${prefix}${base}-${suf}`;
   } else if (groupe.k === "cétone") {
     const base = chaine.replace(/e$/, "");
     const pos = positionsFG.join(",");
