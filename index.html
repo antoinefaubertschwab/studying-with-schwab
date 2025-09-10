@@ -476,6 +476,17 @@
       </section>
     </div>
 
+  <div id="code-modal" hidden>
+    <div id="code-modal-inner">
+      <label for="code-input">Code admin</label>
+      <input id="code-input" type="text" autocomplete="off" />
+      <div class="row">
+        <button class="btn" id="code-ok" type="button">OK</button>
+        <button class="btn alt" id="code-cancel" type="button">Annuler</button>
+      </div>
+    </div>
+  </div>
+
   <div id="zoom"><div id="zoomInner"></div></div>
   <div id="toast"></div>
 
@@ -879,15 +890,35 @@
         const prefixes = $('prefixes');
         const priority = $('priority');
         const crumbs = $('breadcrumbs');
-        $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; updateBestHome(); });
-        $('open-sleep').addEventListener('click', ()=>{
-          const code = prompt('Code admin ?');
-          if(code === 'iamcoolerthanyou'){
-            window.location.href = 'sleep.html';
+           const codeModal = $('code-modal');
+        const codeInput = $('code-input');
+        const codeOk = $('code-ok');
+        const codeCancel = $('code-cancel');
+        let codeReal = '';
+        const resetCode = ()=>{ codeReal=''; codeInput.value=''; };
+        codeInput.addEventListener('input',(e)=>{
+          const val = e.target.value;
+          if(val.length < codeReal.length){
+            codeReal = codeReal.slice(0,val.length);
+            return;
+          }
+          const ch = val.slice(-1);
+          codeReal += ch;
+          setTimeout(()=>{ codeInput.value='*'.repeat(codeReal.length); },150);
+        });
+        codeInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') codeOk.click(); });
+        codeOk.addEventListener('click', ()=>{
+          if(codeReal === 'iamcoolerthanyou'){
+            window.location.href='sleep.html';
           } else {
             alert('Code incorrect');
           }
+          codeModal.hidden=true;
+          resetCode();
         });
+        codeCancel.addEventListener('click', ()=>{ codeModal.hidden=true; resetCode(); });
+        $('open-sleep').addEventListener('click', ()=>{ codeModal.hidden=false; resetCode(); codeInput.focus(); });
+        $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; updateBestHome(); });
         $('back-home-chimie').addEventListener('click', ()=>{ chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
         $('open-pratique').addEventListener('click', ()=>{ chimie.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; updateBestHome(); });
         $('open-prefixes').addEventListener('click', ()=>{ chimie.hidden=true; prefixes.hidden=false; crumbs.textContent='Préfixes grecs'; resetPrefixes(); renderPrefix(); });
