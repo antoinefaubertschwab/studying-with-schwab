@@ -1,1 +1,30 @@
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Calculateur de dette de sommeil</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 10px;
+      line-height: 1.5;
+    }
+    label { display: block; margin-top: 8px; }
+    input { width: 100%; padding: 6px; font-size: 1rem; box-sizing: border-box; }
+    button { margin-top: 12px; padding: 8px 16px; font-size: 1rem; }
+    #result { margin-top: 12px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Sleep Debt Calculator</h1>
+  <div id="days"></div>
+  <button id="calc" type="button">Calculer</button>
+  <div id="result"></div>
+  <div>
+    <button id="home" type="button">Accueil</button>
+  </div>
+  <script src="sleep.js"></script>
+</body>
+</html>
