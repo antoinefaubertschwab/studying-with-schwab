@@ -62,6 +62,7 @@
     let current;
     let score = 0;
     let total = 0;
+    const SUB_DATA = Object.fromEntries(SUBSTITUANTS.map((s) => [s.name, s]));
 
     function formatFormula(str) {
       return str.replace(/(\d+)/g, '<sub>$1</sub>');
@@ -154,6 +155,99 @@
       structCtx.fillText(label, end.x - textWidth / 2, end.y + (dir < 0 ? -6 : 16));
     }
 
+      function drawLinearSub(len, c, dir) {
+      const step = 25;
+      const zig = 10;
+      let prev = { x: c.x, y: c.y + dir * step };
+      drawBond(c, prev, 1);
+      for (let i = 1; i < len; i++) {
+        const next = { x: prev.x + (i % 2 ? -zig : zig), y: prev.y + dir * step };
+        drawBond(prev, next, 1);
+        prev = next;
+      }
+      const label = 'CH3';
+      const w = structCtx.measureText(label).width;
+      structCtx.fillText(label, prev.x - w / 2, prev.y + (dir > 0 ? 16 : -6));
+    }
+
+    function drawIsoPropyl(c, dir) {
+      const step = 25;
+      const base = { x: c.x, y: c.y + dir * step };
+      drawBond(c, base, 1);
+      const left = { x: base.x - 10, y: base.y + dir * step };
+      const right = { x: base.x + 10, y: base.y + dir * step };
+      drawBond(base, left, 1);
+      drawBond(base, right, 1);
+      const label = 'CH3';
+      const w = structCtx.measureText(label).width;
+      structCtx.fillText(label, left.x - w / 2, left.y + (dir > 0 ? 16 : -6));
+      structCtx.fillText(label, right.x - w / 2, right.y + (dir > 0 ? 16 : -6));
+    }
+
+    function drawIsoButyl(c, dir) {
+      const step = 25;
+      const first = { x: c.x, y: c.y + dir * step };
+      drawBond(c, first, 1);
+      const second = { x: first.x, y: first.y + dir * step };
+      drawBond(first, second, 1);
+      const left = { x: second.x - 10, y: second.y + dir * step };
+      const right = { x: second.x + 10, y: second.y + dir * step };
+      drawBond(second, left, 1);
+      drawBond(second, right, 1);
+      const label = 'CH3';
+      const w = structCtx.measureText(label).width;
+      structCtx.fillText(label, left.x - w / 2, left.y + (dir > 0 ? 16 : -6));
+      structCtx.fillText(label, right.x - w / 2, right.y + (dir > 0 ? 16 : -6));
+    }
+
+    function drawSecButyl(c, dir) {
+      const step = 25;
+      const base = { x: c.x, y: c.y + dir * step };
+      drawBond(c, base, 1);
+      const branch = { x: base.x - 10, y: base.y + dir * step };
+      drawBond(base, branch, 1);
+      const label = 'CH3';
+      let w = structCtx.measureText(label).width;
+      structCtx.fillText(label, branch.x - w / 2, branch.y + (dir > 0 ? 16 : -6));
+      const second = { x: base.x, y: base.y + dir * step };
+      drawBond(base, second, 1);
+      const third = { x: second.x + 10, y: second.y + dir * step };
+      drawBond(second, third, 1);
+      w = structCtx.measureText(label).width;
+      structCtx.fillText(label, third.x - w / 2, third.y + (dir > 0 ? 16 : -6));
+    }
+
+    function drawTertButyl(c, dir) {
+      const step = 25;
+      const center = { x: c.x, y: c.y + dir * step };
+      drawBond(c, center, 1);
+      const up = { x: center.x, y: center.y + dir * step };
+      const left = { x: center.x - 15, y: center.y + dir * step };
+      const right = { x: center.x + 15, y: center.y + dir * step };
+      drawBond(center, up, 1);
+      drawBond(center, left, 1);
+      drawBond(center, right, 1);
+      const label = 'CH3';
+      const w = structCtx.measureText(label).width;
+      structCtx.fillText(label, up.x - w / 2, up.y + (dir > 0 ? 16 : -6));
+      structCtx.fillText(label, left.x - w / 2, left.y + (dir > 0 ? 16 : -6));
+      structCtx.fillText(label, right.x - w / 2, right.y + (dir > 0 ? 16 : -6));
+    }
+
+    function drawSubstituent(name, c, dir) {
+      if (name === 'isopropyl') return drawIsoPropyl(c, dir);
+      if (name === 'isobutyl') return drawIsoButyl(c, dir);
+      if (name === 'sec-butyl') return drawSecButyl(c, dir);
+      if (name === 'tert-butyl') return drawTertButyl(c, dir);
+      const data = SUB_DATA[name];
+      if (data) {
+        drawLinearSub(data.len, c, dir);
+      } else {
+        drawBranch(SUB_FORMULES[name] || name, c, dir);
+      }
+    }
+
+
     function drawMolecule(data) {
     structCtx.clearRect(0, 0, displayWidth, displayHeight);
       const { n, subs, halos, groupe, positionsFG } = data;
@@ -177,7 +271,7 @@
       subs.forEach((s) => {
         const c = coords[s.position - 1];
         const dir = s.position % 2 === 0 ? 1 : -1;
-        drawBranch(SUB_FORMULES[s.sub], c, dir);
+        drawSubstituent(s.sub, c, dir);
       });
 
       halos.forEach((h) => {
