@@ -15,10 +15,13 @@
     input { width:100%; padding:6px; font-size:1rem; box-sizing:border-box; }
     button { margin-top:12px; padding:8px 16px; font-size:1rem; }
     #result { margin-top:12px; font-weight:bold; }
+    li button.edit{margin-top:0;padding:2px 6px;font-size:0.8rem}
   </style>
 </head>
 <body>
   <h1>Suivi du sommeil</h1>
+  <label for="date-input">Date</label>
+  <input id="date-input" type="date" />
   <label for="sleep-input">Durée de sommeil (ex : 8h45)</label>
   <input id="sleep-input" type="text" placeholder="ex : 7h30" />
   <button id="add" type="button">Ajouter</button>
