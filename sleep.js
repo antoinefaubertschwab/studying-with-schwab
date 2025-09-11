@@ -1,7 +1,9 @@
 const input = document.getElementById('sleep-input');
+const dateInput = document.getElementById('date-input');
 const addBtn = document.getElementById('add');
 const historyEl = document.getElementById('history');
 const resultEl = document.getElementById('result');
+let editDate = null;
 
 const KEY = 'sleepEntries';
 
@@ -34,7 +36,7 @@ function saveEntries(list){
 
 function render(){
   const entries = loadEntries();
-  historyEl.innerHTML = entries.map(e => `<li>${e.date} : ${e.hours.toFixed(2)} h</li>`).join('');
+  historyEl.innerHTML = entries.map(e => `<li>${e.date} : ${e.hours.toFixed(2)} h <button class="edit" data-date="${e.date}">Modifier</button></li>`).join('');
   let total = 0, debt = 0;
   entries.forEach(e => {
     total += e.hours;
@@ -52,13 +54,32 @@ addBtn.addEventListener('click', () => {
     alert('Durée invalide');
     return;
   }
-    const date = new Date().toISOString().slice(0,10);
-  const entries = loadEntries().filter(e => e.date !== date);
+  const date = dateInput.value || new Date().toISOString().slice(0,10);
+  let entries = loadEntries();
+  if(editDate){
+    entries = entries.filter(e => e.date !== editDate);
+    editDate = null;
+  }
+  entries = entries.filter(e => e.date !== date);
   entries.push({date, hours: hrs});
   saveEntries(entries);
   input.value = '';
+  dateInput.value = new Date().toISOString().slice(0,10);
   render();
   
+});
+
+historyEl.addEventListener('click',(e)=>{
+  if(e.target.classList.contains('edit')){
+    const date = e.target.dataset.date;
+    const entries = loadEntries();
+    const entry = entries.find(en => en.date === date);
+    if(entry){
+      input.value = entry.hours.toFixed(2);
+      dateInput.value = entry.date;
+      editDate = entry.date;
+    }
+  }
 });
 
 document.getElementById('home').addEventListener('click', () => {
@@ -66,4 +87,5 @@ document.getElementById('home').addEventListener('click', () => {
 });
 
 
+dateInput.value = new Date().toISOString().slice(0,10);
 render();
