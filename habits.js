@@ -6,12 +6,17 @@ const resultEl = document.getElementById('result');
 const weeklyEl = document.getElementById('weekly');
 const waterInput = document.getElementById('water-input');
 const addWaterBtn = document.getElementById('add-water');
+const removeWaterBtn = document.getElementById('remove-water');
 const waterFill = document.getElementById('water-fill');
 const waterResult = document.getElementById('water-result');
+const activityInput = document.getElementById('activity-input');
+const addActivityBtn = document.getElementById('add-activity');
+const activityResult = document.getElementById('activity-result');
 let editDate = null;
 
 const KEY = 'sleepEntries';
 const WATER_KEY = 'waterEntries';
+const ACT_KEY = 'activityEntries';
 
 function parseDuration(str){
   if(!str) return NaN;
@@ -72,7 +77,6 @@ function drawDebtChart(entries){
   ctx.stroke();
 }
 
-
 function render(){
   const entries = loadEntries();
   entries.sort((a,b)=>a.date.localeCompare(b.date));
@@ -91,7 +95,7 @@ function render(){
   const avg = count ? total / count : 0;
   const score = count ? Math.min(100, Math.round((avg / 8) * 100)) : 0;
   resultEl.textContent = count ? `Score : ${score}/100 — Dette de sommeil : ${debt.toFixed(1)} h` : '';
-    weeklyEl.innerHTML = Object.keys(weekly).map(wk => `${wk} : ${(weekly[wk].total/weekly[wk].count).toFixed(2)} h`).join('<br>');
+  weeklyEl.innerHTML = Object.keys(weekly).map(wk => `${wk} : ${(weekly[wk].total/weekly[wk].count).toFixed(2)} h`).join('<br>');
   drawDebtChart(entries);
 }
 
@@ -116,6 +120,26 @@ function renderWater(){
   else if(amount >= 1500) msg = 'Acceptable';
   else msg = `${2000-amount} ml restants`;
   waterResult.textContent = `${amount} ml — ${msg}`;
+}
+
+function loadActivity(){
+  return JSON.parse(localStorage.getItem(ACT_KEY) || '[]');
+}
+
+function saveActivity(list){
+  localStorage.setItem(ACT_KEY, JSON.stringify(list));
+}
+
+function renderActivity(){
+  const today = new Date().toISOString().slice(0,10);
+  const entries = loadActivity();
+  const week = getWeekKey(today);
+  const total = entries.filter(e => getWeekKey(e.date)===week)
+                       .reduce((s,e)=>s+e.minutes,0);
+  let msg = `${total} min cette semaine`;
+  if(total >= 150) msg += ' — Objectif atteint!';
+  else msg += ` — ${150-total} min restantes`;
+  activityResult.textContent = msg;
 }
 
 addBtn.addEventListener('click', () => {
@@ -174,6 +198,46 @@ addWaterBtn.addEventListener('click', () => {
   renderWater();
 });
 
+removeWaterBtn.addEventListener('click', () => {
+  const amt = parseInt(waterInput.value,10);
+  if(isNaN(amt) || amt<=0){
+    alert('Quantité invalide');
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  let entries = loadWater();
+  let record = entries.find(e=>e.date===today);
+  if(!record){
+    alert("Aucune entrée aujourd'hui");
+    return;
+  }
+  record.amount = Math.max(0, record.amount - amt);
+  saveWater(entries);
+  waterInput.value='';
+  renderWater();
+});
+
+addActivityBtn.addEventListener('click', () => {
+  const mins = parseInt(activityInput.value,10);
+  if(isNaN(mins) || mins<=0){
+    alert('Durée invalide');
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  let entries = loadActivity();
+  let record = entries.find(e=>e.date===today);
+  if(!record){
+    record = {date:today, minutes:0};
+    entries.push(record);
+  }
+  record.minutes += mins;
+  saveActivity(entries);
+  activityInput.value='';
+  renderActivity();
+});
+
+
 dateInput.value = new Date().toISOString().slice(0,10);
 render();
 renderWater();
+renderActivity();
