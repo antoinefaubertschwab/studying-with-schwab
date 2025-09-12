@@ -27,6 +27,17 @@
   <button id="add" type="button">Ajouter</button>
   <ul id="history"></ul>
   <div id="result"></div>
+    <canvas id="debt-chart" width="600" height="200"></canvas>
+  <div id="weekly"></div>
+
+  <h2>Hydratation</h2>
+  <label for="water-input">Quantité d'eau (ml)</label>
+  <input id="water-input" type="number" min="0" step="50" placeholder="ex : 250" />
+  <button id="add-water" type="button">Ajouter</button>
+  <div id="water-bar" style="background:#eee;border-radius:10px;height:20px;margin-top:8px;overflow:hidden">
+    <div id="water-fill" style="background:#3b82f6;height:100%;width:0"></div>
+  </div>
+  <div id="water-result"></div>
   <div>
     <button id="home" type="button">Accueil</button>
   </div>
