@@ -158,7 +158,7 @@
             <div class="desc">Modules et exercices</div>
           </div>
            </button>
-          <button class="app" id="open-sleep" type="button">
+          <button class="app" id="open-habits" type="button">
           <div class="icon">
             <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M3 12h18v8H3z" fill="none" stroke="currentColor"/>
@@ -166,8 +166,8 @@
             </svg>
           </div>
           <div class="meta">
-            <div class="title">Sleep Calc</div>
-            <div class="desc">Admin</div>
+            <div class="title">Track Study Habits</div>
+            <div class="desc">Sommeil, eau, activité</div>
           </div>
         </button>
       </div>
@@ -910,7 +910,7 @@
         codeInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') codeOk.click(); });
         codeOk.addEventListener('click', ()=>{
           if(codeReal === 'iamcoolerthanyou'){
-            window.location.href='sleep.html';
+            window.location.href='habits.html';
           } else {
             alert('Code incorrect');
           }
@@ -918,7 +918,7 @@
           resetCode();
         });
         codeCancel.addEventListener('click', ()=>{ codeModal.hidden=true; resetCode(); });
-        $('open-sleep').addEventListener('click', ()=>{ codeModal.hidden=false; resetCode(); codeInput.focus(); });
+        $('open-habits').addEventListener('click', ()=>{ codeModal.hidden=false; resetCode(); codeInput.focus(); });
         $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; updateBestHome(); });
         $('back-home-chimie').addEventListener('click', ()=>{ chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
         $('open-pratique').addEventListener('click', ()=>{ chimie.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; updateBestHome(); });
