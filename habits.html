@@ -34,6 +34,13 @@
     #water-fill{ background:#3b82f6;height:100%;width:0; }
     #debt-chart{ display:block;margin-top:12px; }
     .home-btn{ background:#6b7280; }
+    .custom-card{ border-left:8px solid #f43f5e; }
+    .custom-category h3{ margin-bottom:4px; }
+    .custom-category ul{ list-style:none; padding-left:0; }
+    .day{display:inline-block;width:10px;height:10px;margin:1px;background:#e5e7eb;border-radius:2px;}
+    .day.done{background:#10b981;}
+    #templates button{margin:4px;}
+    #points-display{margin-top:10px;}
   </style>
 </head>
 <body>
@@ -73,6 +80,37 @@
     <button id="add-activity" class="activity" type="button">Ajouter</button>
     <div id="activity-result"></div>
   </div>
+
+    <div class="habit-card custom-card">
+    <h2>Habitudes personnalisées</h2>
+    <label for="cat-input">Catégorie</label>
+    <input id="cat-input" type="text" placeholder="ex : Santé" />
+    <label for="habit-name-input">Habitude</label>
+    <input id="habit-name-input" type="text" placeholder="ex : Méditation" />
+    <label for="reminder-input">Rappel (HH:MM)</label>
+    <input id="reminder-input" type="time" />
+    <button id="add-custom" class="activity" type="button">Ajouter</button>
+
+    <div id="templates">
+      <h3>Templates</h3>
+      <button class="template" data-cat="Santé" data-name="Méditation">Méditation</button>
+      <button class="template" data-cat="Productivité" data-name="Lecture">Lecture</button>
+      <button class="template" data-cat="Santé" data-name="Hydratation">Hydratation</button>
+      <button class="template" data-cat="Santé" data-name="Exercice">Exercice</button>
+    </div>
+
+    <div id="points-display">Points : <span id="points">0</span> <span id="badge"></span></div>
+    <div>
+      <button id="weekly-report" type="button">Rapport hebdo</button>
+      <button id="share-progress" type="button">Partager</button>
+      <button id="export-data" type="button">Exporter</button>
+      <button id="import-data" type="button">Importer</button>
+    </div>
+    <div id="weekly-report-result"></div>
+    <div id="insights"></div>
+    <div id="custom-list"></div>
+  </div>
+
 
   <div>
     <button id="home" class="home-btn" type="button">Accueil</button>
