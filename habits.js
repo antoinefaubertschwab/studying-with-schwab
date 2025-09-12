@@ -12,11 +12,45 @@ const waterResult = document.getElementById('water-result');
 const activityInput = document.getElementById('activity-input');
 const addActivityBtn = document.getElementById('add-activity');
 const activityResult = document.getElementById('activity-result');
+const catInput = document.getElementById('cat-input');
+const habitNameInput = document.getElementById('habit-name-input');
+const addCustomBtn = document.getElementById('add-custom');
+const customList = document.getElementById('custom-list');
+const reminderInput = document.getElementById('reminder-input');
+const templatesDiv = document.getElementById('templates');
+const pointsEl = document.getElementById('points');
+const badgeEl = document.getElementById('badge');
+const weeklyReportBtn = document.getElementById('weekly-report');
+const shareBtn = document.getElementById('share-progress');
+const exportBtn = document.getElementById('export-data');
+const importBtn = document.getElementById('import-data');
+const weeklyReportResult = document.getElementById('weekly-report-result');
+const insightsEl = document.getElementById('insights');
 let editDate = null;
 
 const KEY = 'sleepEntries';
 const WATER_KEY = 'waterEntries';
 const ACT_KEY = 'activityEntries';
+const CUSTOM_KEY = 'customHabits';
+const POINTS_KEY = 'habitPoints';
+
+function loadPoints(){
+  return parseInt(localStorage.getItem(POINTS_KEY) || '0',10);
+}
+
+function savePoints(v){
+  localStorage.setItem(POINTS_KEY, v);
+}
+
+function updatePointsDisplay(){
+  const pts = loadPoints();
+  pointsEl.textContent = pts;
+  let badge = '';
+  if(pts >= 500) badge = '🥇';
+  else if(pts >= 200) badge = '🥈';
+  else if(pts >= 100) badge = '🥉';
+  badgeEl.textContent = badge;
+}
 
 function parseDuration(str){
   if(!str) return NaN;
@@ -236,8 +270,200 @@ addActivityBtn.addEventListener('click', () => {
   renderActivity();
 });
 
+function loadCustom(){
+  return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]');
+}
+
+function saveCustom(list){
+  localStorage.setItem(CUSTOM_KEY, JSON.stringify(list));
+}
+
+function renderCustom(){
+  const data = loadCustom();
+  const today = new Date().toISOString().slice(0,10);
+  customList.innerHTML = data.map(cat => `
+    <div class="custom-category">
+      <h3>${cat.name}</h3>
+      <ul>${cat.habits.map((h,i)=>{
+        const last7 = Array.from({length:7},(_,d)=>{
+          return new Date(Date.now()-d*86400000).toISOString().slice(0,10);
+        }).reverse();
+        const heat = last7.map(day=>`<span class="day ${h.history&&h.history.includes(day)?'done':''}"></span>`).join('');
+        const rem = h.reminder?`<span>⏰${h.reminder}</span>`:'';
+        return `<li>
+          <label><input data-cat="${cat.name}" data-index="${i}" type="checkbox" ${h.lastDone===today?'checked':''}>${h.name} — Série : ${h.streak}</label>
+          ${rem}<div class="heatmap">${heat}</div>
+        </li>`;
+      }).join('')}</ul>
+    </div>
+  `).join('');
+  updateInsights();
+}
+
+function updateInsights(){
+  const data = loadCustom();
+  let best=null, worst=null;
+  data.forEach(cat=>cat.habits.forEach(h=>{
+    if(!best || h.streak > best.streak) best = h;
+    if(!worst || h.streak < worst.streak) worst = h;
+  }));
+  let msg='';
+  if(best) msg += `Meilleure habitude : ${best.name} (${best.streak} jours)`;
+  if(worst) msg += (msg?' — ':'') + `À améliorer : ${worst.name}`;
+  insightsEl.innerHTML = msg;
+}
+
+function scheduleReminders(){
+  if('Notification' in window && Notification.permission !== 'granted'){
+    Notification.requestPermission();
+  }
+  setInterval(()=>{
+    const now = new Date();
+    const time = now.toTimeString().slice(0,5);
+    const today = now.toISOString().slice(0,10);
+    const data = loadCustom();
+    data.forEach(cat=>cat.habits.forEach(h=>{
+      if(h.reminder === time && h.lastDone !== today){
+        if('Notification' in window && Notification.permission === 'granted'){
+          new Notification(`Rappel : ${h.name}`);
+        }
+      }
+    }));
+  },60000);
+}
+
+addCustomBtn.addEventListener('click', () => {
+  const cat = catInput.value.trim();
+  const name = habitNameInput.value.trim();
+  const reminder = reminderInput.value;
+  if(!cat || !name){
+    alert('Catégorie ou habitude manquante');
+    return;
+  }
+  const data = loadCustom();
+  let category = data.find(c=>c.name===cat);
+  if(!category){
+    category = {name:cat, habits:[]};
+    data.push(category);
+  }
+  category.habits.push({name, streak:0, lastDone:null, history:[], reminder: reminder || null});
+  saveCustom(data);
+  catInput.value='';
+  habitNameInput.value='';
+  reminderInput.value='';
+  renderCustom();
+});
+
+templatesDiv.addEventListener('click', e => {
+  if(e.target.classList.contains('template')){
+    const cat = e.target.dataset.cat;
+    const name = e.target.dataset.name;
+    const data = loadCustom();
+    let category = data.find(c=>c.name===cat);
+    if(!category){
+      category = {name:cat, habits:[]};
+      data.push(category);
+    }
+    category.habits.push({name, streak:0, lastDone:null, history:[], reminder:null});
+    saveCustom(data);
+    renderCustom();
+  }
+});
+
+customList.addEventListener('change', e => {
+  if(e.target.matches('input[type="checkbox"]')){
+    const catName = e.target.dataset.cat;
+    const idx = parseInt(e.target.dataset.index,10);
+    const data = loadCustom();
+    const category = data.find(c=>c.name===catName);
+    if(!category) return;
+    const habit = category.habits[idx];
+    const today = new Date().toISOString().slice(0,10);
+    const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+    if(e.target.checked){
+      if(habit.lastDone === yesterday) habit.streak += 1;
+      else habit.streak = 1;
+      habit.lastDone = today;
+      habit.history = habit.history || [];
+      if(!habit.history.includes(today)) habit.history.push(today);
+      const pts = loadPoints() + 10;
+      savePoints(pts);
+      updatePointsDisplay();
+    } else {
+      habit.streak = 0;
+      habit.lastDone = null;
+      if(habit.history) habit.history = habit.history.filter(d=>d!==today);
+    }
+    saveCustom(data);
+    renderCustom();
+    updatePointsDisplay();
+  }
+});
+
+weeklyReportBtn.addEventListener('click', () => {
+  const data = loadCustom();
+  const today = new Date();
+  const last7 = Array.from({length:7},(_,d)=>{
+    return new Date(today - d*86400000).toISOString().slice(0,10);
+  });
+  const report = [];
+  data.forEach(cat=>cat.habits.forEach(h=>{
+    const count = (h.history||[]).filter(d=>last7.includes(d)).length;
+    report.push(`${h.name} : ${count}/7`);
+  }));
+  weeklyReportResult.innerHTML = report.join('<br>');
+});
+
+shareBtn.addEventListener('click', () => {
+  const pts = loadPoints();
+  const text = `J'ai ${pts} points sur mes habitudes !`;
+  if(navigator.share){
+    navigator.share({title:'Progrès', text});
+  } else {
+    navigator.clipboard.writeText(text);
+    alert('Progress copié dans le presse‑papier');
+  }
+});
+
+exportBtn.addEventListener('click', () => {
+  const data = {
+    sleep: loadEntries(),
+    water: loadWater(),
+    activity: loadActivity(),
+    custom: loadCustom(),
+    points: loadPoints()
+  };
+  const json = JSON.stringify(data);
+  navigator.clipboard.writeText(json).then(()=>alert('Données copiées')).catch(()=>alert(json));
+});
+
+importBtn.addEventListener('click', () => {
+  const json = prompt('Collez les données');
+  if(!json) return;
+  try {
+    const data = JSON.parse(json);
+    if(data.sleep) saveEntries(data.sleep);
+    if(data.water) saveWater(data.water);
+    if(data.activity) saveActivity(data.activity);
+    if(data.custom) saveCustom(data.custom);
+    if(data.points != null) savePoints(data.points);
+    render();
+    renderWater();
+    renderActivity();
+    renderCustom();
+    updatePointsDisplay();
+    updateInsights();
+  } catch(e){
+    alert('Données invalides');
+  }
+});
+
+
 
 dateInput.value = new Date().toISOString().slice(0,10);
 render();
 renderWater();
 renderActivity();
+renderCustom();
+updatePointsDisplay();
+scheduleReminders();
