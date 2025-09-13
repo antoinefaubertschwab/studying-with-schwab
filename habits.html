@@ -24,12 +24,15 @@
     .water-card{ border-left:8px solid #3b82f6; }
     .activity-card{ border-left:8px solid #10b981; }
     label { display:block; margin-top:8px; }
-    input { width:100%; padding:6px; font-size:1rem; box-sizing:border-box; }
-    button { margin-top:12px; padding:8px 16px; font-size:1rem; cursor:pointer; border-radius:8px; border:0; color:#fff; }
+    input, select { width:100%; padding:6px; font-size:1rem; box-sizing:border-box; }
+    button { margin-top:12px; padding:8px 16px; font-size:1rem; cursor:pointer; border-radius:8px; border:0; color:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.1); transition:background 0.3s, transform 0.2s; }
+    button:hover { transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,0.2); }
     button.sleep { background:#8b5cf6; }
     button.water { background:#3b82f6; }
     button.remove { background:#f59e0b; }
     button.activity { background:#10b981; }
+    button.edit-habit { background:#3b82f6; }
+    button.delete-habit { background:#ef4444; }
     #water-bar{ background:#e0f2fe;border-radius:10px;height:20px;margin-top:8px;overflow:hidden; }
     #water-fill{ background:#3b82f6;height:100%;width:0; }
     #debt-chart{ display:block;margin-top:12px; }
@@ -39,7 +42,6 @@
     .custom-category ul{ list-style:none; padding-left:0; }
     .day{display:inline-block;width:10px;height:10px;margin:1px;background:#e5e7eb;border-radius:2px;}
     .day.done{background:#10b981;}
-    #templates button{margin:4px;}
     #points-display{margin-top:10px;}
   </style>
 </head>
@@ -87,17 +89,13 @@
     <input id="cat-input" type="text" placeholder="ex : Santé" />
     <label for="habit-name-input">Habitude</label>
     <input id="habit-name-input" type="text" placeholder="ex : Méditation" />
-    <label for="reminder-input">Rappel (HH:MM)</label>
-    <input id="reminder-input" type="time" />
+    <label for="frequency-input">Fréquence</label>
+    <select id="frequency-input">
+      <option value="daily">Quotidien</option>
+      <option value="weekly">Hebdomadaire</option>
+      <option value="monthly">Mensuel</option>
+    </select>
     <button id="add-custom" class="activity" type="button">Ajouter</button>
-
-    <div id="templates">
-      <h3>Templates</h3>
-      <button class="template" data-cat="Santé" data-name="Méditation">Méditation</button>
-      <button class="template" data-cat="Productivité" data-name="Lecture">Lecture</button>
-      <button class="template" data-cat="Santé" data-name="Hydratation">Hydratation</button>
-      <button class="template" data-cat="Santé" data-name="Exercice">Exercice</button>
-    </div>
 
     <div id="points-display">Points : <span id="points">0</span> <span id="badge"></span></div>
     <div>
