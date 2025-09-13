@@ -16,8 +16,7 @@ const catInput = document.getElementById('cat-input');
 const habitNameInput = document.getElementById('habit-name-input');
 const addCustomBtn = document.getElementById('add-custom');
 const customList = document.getElementById('custom-list');
-const reminderInput = document.getElementById('reminder-input');
-const templatesDiv = document.getElementById('templates');
+const freqInput = document.getElementById('frequency-input');
 const pointsEl = document.getElementById('points');
 const badgeEl = document.getElementById('badge');
 const weeklyReportBtn = document.getElementById('weekly-report');
@@ -86,6 +85,30 @@ function getWeekKey(dateStr){
   const week = Math.ceil((pastDays + firstDay.getDay() + 1)/7);
   return d.getFullYear() + '-W' + String(week).padStart(2,'0');
 }
+
+function getPeriodKey(dateStr, freq){
+  const d = new Date(dateStr + 'T00:00:00');
+  if(freq === 'weekly'){
+    return getWeekKey(dateStr);
+  } else if(freq === 'monthly'){
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  }
+  return dateStr;
+}
+
+function getLastPeriods(freq, count){
+  const periods = [];
+  const today = new Date();
+  for(let i=0;i<count;i++){
+    const d = new Date(today);
+    if(freq === 'weekly') d.setDate(d.getDate() - i*7);
+    else if(freq === 'monthly') d.setMonth(d.getMonth() - i);
+    else d.setDate(d.getDate() - i);
+    periods.push(getPeriodKey(d.toISOString().slice(0,10), freq));
+  }
+  return periods.reverse();
+}
+
 
 function drawDebtChart(entries){
   const canvas = document.getElementById('debt-chart');
@@ -281,18 +304,20 @@ function saveCustom(list){
 function renderCustom(){
   const data = loadCustom();
   const today = new Date().toISOString().slice(0,10);
+  const labels = {daily:'quotidienne', weekly:'hebdomadaire', monthly:'mensuelle'};
   customList.innerHTML = data.map(cat => `
     <div class="custom-category">
       <h3>${cat.name}</h3>
       <ul>${cat.habits.map((h,i)=>{
-        const last7 = Array.from({length:7},(_,d)=>{
-          return new Date(Date.now()-d*86400000).toISOString().slice(0,10);
-        }).reverse();
-        const heat = last7.map(day=>`<span class="day ${h.history&&h.history.includes(day)?'done':''}"></span>`).join('');
-        const rem = h.reminder?`<span>⏰${h.reminder}</span>`:'';
+        const freq = h.frequency || 'daily';
+        const periods = getLastPeriods(freq,7);
+        const heat = periods.map(p=>`<span class="day ${h.history&&h.history.includes(p)?'done':''}"></span>`).join('');
+        const current = getPeriodKey(today, freq);
         return `<li>
-          <label><input data-cat="${cat.name}" data-index="${i}" type="checkbox" ${h.lastDone===today?'checked':''}>${h.name} — Série : ${h.streak}</label>
-          ${rem}<div class="heatmap">${heat}</div>
+          <label><input data-cat="${cat.name}" data-index="${i}" type="checkbox" ${h.lastDone===current?'checked':''}>${h.name} (${labels[freq]||freq}) — Série : ${h.streak}</label>
+          <button class="edit-habit" data-cat="${cat.name}" data-index="${i}">Modifier</button>
+          <button class="delete-habit" data-cat="${cat.name}" data-index="${i}">Supprimer</button>
+          <div class="heatmap">${heat}</div>
         </li>`;
       }).join('')}</ul>
     </div>
@@ -313,29 +338,11 @@ function updateInsights(){
   insightsEl.innerHTML = msg;
 }
 
-function scheduleReminders(){
-  if('Notification' in window && Notification.permission !== 'granted'){
-    Notification.requestPermission();
-  }
-  setInterval(()=>{
-    const now = new Date();
-    const time = now.toTimeString().slice(0,5);
-    const today = now.toISOString().slice(0,10);
-    const data = loadCustom();
-    data.forEach(cat=>cat.habits.forEach(h=>{
-      if(h.reminder === time && h.lastDone !== today){
-        if('Notification' in window && Notification.permission === 'granted'){
-          new Notification(`Rappel : ${h.name}`);
-        }
-      }
-    }));
-  },60000);
-}
 
 addCustomBtn.addEventListener('click', () => {
   const cat = catInput.value.trim();
   const name = habitNameInput.value.trim();
-  const reminder = reminderInput.value;
+  const freq = freqInput.value;
   if(!cat || !name){
     alert('Catégorie ou habitude manquante');
     return;
@@ -346,28 +353,12 @@ addCustomBtn.addEventListener('click', () => {
     category = {name:cat, habits:[]};
     data.push(category);
   }
-  category.habits.push({name, streak:0, lastDone:null, history:[], reminder: reminder || null});
+  category.habits.push({name, frequency:freq, streak:0, lastDone:null, history:[]});
   saveCustom(data);
   catInput.value='';
   habitNameInput.value='';
-  reminderInput.value='';
+  freqInput.value='daily';
   renderCustom();
-});
-
-templatesDiv.addEventListener('click', e => {
-  if(e.target.classList.contains('template')){
-    const cat = e.target.dataset.cat;
-    const name = e.target.dataset.name;
-    const data = loadCustom();
-    let category = data.find(c=>c.name===cat);
-    if(!category){
-      category = {name:cat, habits:[]};
-      data.push(category);
-    }
-    category.habits.push({name, streak:0, lastDone:null, history:[], reminder:null});
-    saveCustom(data);
-    renderCustom();
-  }
 });
 
 customList.addEventListener('change', e => {
@@ -378,21 +369,27 @@ customList.addEventListener('change', e => {
     const category = data.find(c=>c.name===catName);
     if(!category) return;
     const habit = category.habits[idx];
-    const today = new Date().toISOString().slice(0,10);
-    const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+    const freq = habit.frequency || 'daily';
+    const today = new Date();
+    const period = getPeriodKey(today.toISOString().slice(0,10), freq);
+    const prev = new Date(today);
+    if(freq === 'weekly') prev.setDate(prev.getDate()-7);
+    else if(freq === 'monthly') prev.setMonth(prev.getMonth()-1);
+    else prev.setDate(prev.getDate()-1);
+    const prevPeriod = getPeriodKey(prev.toISOString().slice(0,10), freq);
     if(e.target.checked){
-      if(habit.lastDone === yesterday) habit.streak += 1;
+      if(habit.lastDone === prevPeriod) habit.streak += 1;
       else habit.streak = 1;
-      habit.lastDone = today;
+      habit.lastDone = period;
       habit.history = habit.history || [];
-      if(!habit.history.includes(today)) habit.history.push(today);
+      if(!habit.history.includes(period)) habit.history.push(period);
       const pts = loadPoints() + 10;
       savePoints(pts);
       updatePointsDisplay();
     } else {
       habit.streak = 0;
       habit.lastDone = null;
-      if(habit.history) habit.history = habit.history.filter(d=>d!==today);
+      if(habit.history) habit.history = habit.history.filter(d=>d!==period);
     }
     saveCustom(data);
     renderCustom();
@@ -400,15 +397,45 @@ customList.addEventListener('change', e => {
   }
 });
 
+customList.addEventListener('click', e => {
+  if(e.target.classList.contains('edit-habit')){
+    const catName = e.target.dataset.cat;
+    const idx = parseInt(e.target.dataset.index,10);
+    const data = loadCustom();
+    const category = data.find(c=>c.name===catName);
+    if(!category) return;
+    const habit = category.habits[idx];
+    const newName = prompt('Nouveau nom', habit.name);
+    if(newName) habit.name = newName.trim();
+    const newFreq = prompt('Fréquence (daily/weekly/monthly)', habit.frequency || 'daily');
+    if(newFreq) habit.frequency = newFreq.trim();
+    saveCustom(data);
+    renderCustom();
+  } else if(e.target.classList.contains('delete-habit')){
+    const catName = e.target.dataset.cat;
+    const idx = parseInt(e.target.dataset.index,10);
+    const data = loadCustom();
+    const category = data.find(c=>c.name===catName);
+    if(!category) return;
+    if(confirm('Supprimer cette habitude ?')){
+      category.habits.splice(idx,1);
+      if(category.habits.length===0){
+        data.splice(data.indexOf(category),1);
+      }
+      saveCustom(data);
+      renderCustom();
+    }
+  }
+});
+
+
 weeklyReportBtn.addEventListener('click', () => {
   const data = loadCustom();
-  const today = new Date();
-  const last7 = Array.from({length:7},(_,d)=>{
-    return new Date(today - d*86400000).toISOString().slice(0,10);
-  });
   const report = [];
   data.forEach(cat=>cat.habits.forEach(h=>{
-    const count = (h.history||[]).filter(d=>last7.includes(d)).length;
+    const freq = h.frequency || 'daily';
+    const periods = getLastPeriods(freq,7);
+    const count = (h.history||[]).filter(p=>periods.includes(p)).length;
     report.push(`${h.name} : ${count}/7`);
   }));
   weeklyReportResult.innerHTML = report.join('<br>');
@@ -466,4 +493,3 @@ renderWater();
 renderActivity();
 renderCustom();
 updatePointsDisplay();
-scheduleReminders();
