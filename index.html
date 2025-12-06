@@ -158,6 +158,18 @@
             <div class="desc">Modules et exercices</div>
           </div>
            </button>
+             <button class="app" id="open-quadratique" type="button">
+          <div class="icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 17c3-5 5-10 8-10s5 5 8 10" fill="none" stroke="currentColor" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" opacity=".5"/>
+            </svg>
+          </div>
+          <div class="meta">
+            <div class="title">Quadratique</div>
+            <div class="desc">Évalue f(x) = ax² + bx + c</div>
+          </div>
+        </button>
           <button class="app" id="open-habits" type="button">
           <div class="icon">
             <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -170,6 +182,40 @@
             <div class="desc">Sommeil, eau, activité</div>
           </div>
         </button>
+      </div>
+    </section>
+<section id="quadratique" hidden>
+      <div class="bar">
+        <button class="btn ghost back" id="back-home-quad" type="button" aria-label="Retour à l'accueil">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6 L9 12 L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Accueil
+        </button>
+        <div class="pill">Quadratique</div>
+      </div>
+      <div class="card">
+        <div class="grid" style="align-items:start;gap:18px">
+          <div>
+            <h2 style="margin:0 0 6px">Évalue une fonction quadratique</h2>
+            <p class="sub">Entre les coefficients (a, b, c) et la valeur de x pour obtenir f(x), f'(x) et le discriminant.</p>
+            <p class="hint">Le mode accepte les décimales. Laisse un champ vide pour utiliser 0.</p>
+          </div>
+          <form id="quad-form" class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+            <label class="pill" for="coef-a" style="display:block">a
+              <input type="number" id="coef-a" name="coef-a" step="any" inputmode="decimal" placeholder="1" aria-label="Coefficient a">
+            </label>
+            <label class="pill" for="coef-b" style="display:block">b
+              <input type="number" id="coef-b" name="coef-b" step="any" inputmode="decimal" placeholder="0" aria-label="Coefficient b">
+            </label>
+            <label class="pill" for="coef-c" style="display:block">c
+              <input type="number" id="coef-c" name="coef-c" step="any" inputmode="decimal" placeholder="0" aria-label="Coefficient c">
+            </label>
+            <label class="pill" for="val-x" style="display:block">x
+              <input type="number" id="val-x" name="val-x" step="any" inputmode="decimal" placeholder="2" aria-label="Valeur de x">
+            </label>
+            <button type="submit" class="btn" style="grid-column:1/-1">Évaluer</button>
+          </form>
+        </div>
+        <div id="quad-result" class="msg" style="margin-top:14px" aria-live="polite">Prêt à calculer.</div>
       </div>
     </section>
 
@@ -582,6 +628,8 @@
       const imgHrefOf = (g)=> (g.d().match(/href="([^"]+)"/)||[])[1];
       const prefetchNext = (n=3)=>{for(let i=1;i<=n;i++){const j=order[(idx+i)%order.length];const src=imgHrefOf(G[j]); if(!src) continue; const im=new Image(); im.src=src;}};
       const toast=(t)=>{const el=$('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2000);};
+      const parseInputNumber=(el)=>{ const raw=el.value.trim().replace(',', '.'); if(raw==='') return 0; const n=parseFloat(raw); return Number.isFinite(n)?n:null; };
+      const fmtNum=(n)=>{ if(!Number.isFinite(n)) return '—'; const rounded=Math.abs(n-Math.round(n))<1e-6?Math.round(n):Number(n.toFixed(4)); return String(rounded).replace(/\.0+$|0+$/,'').replace(/\.$/,''); };
 
       const DURATIONS=[5,8,12,Infinity];
       let timePerCard = 8;
@@ -882,8 +930,9 @@
         $('priority-check').addEventListener('click', checkPriority);
         $('priority-restart').addEventListener('click', restartPriority);
 
-        const home = $('home');
+      const home = $('home');
       const chimie = $('chimie');
+      const quadratique = $('quadratique');
       const fgHub = $('fg-hub');
         const gf = $('gf');
         const builder = $('builder');
@@ -891,6 +940,9 @@
         const prefixes = $('prefixes');
         const priority = $('priority');
         const crumbs = $('breadcrumbs');
+        const quadForm = $('quad-form');
+        const quadResult = $('quad-result');
+        const quadInputs = { a:$('coef-a'), b:$('coef-b'), c:$('coef-c'), x:$('val-x') };
            const codeModal = $('code-modal');
         const codeInput = $('code-input');
         const codeOk = $('code-ok');
@@ -919,8 +971,10 @@
         });
         codeCancel.addEventListener('click', ()=>{ codeModal.hidden=true; resetCode(); });
         $('open-habits').addEventListener('click', ()=>{ codeModal.hidden=false; resetCode(); codeInput.focus(); });
-        $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; updateBestHome(); });
+        $('open-chimie').addEventListener('click', ()=>{ home.hidden=true; chimie.hidden=false; quadratique.hidden=true; crumbs.textContent='Chimie organique'; updateBestHome(); });
         $('back-home-chimie').addEventListener('click', ()=>{ chimie.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
+        $('open-quadratique').addEventListener('click', ()=>{ home.hidden=true; quadratique.hidden=false; chimie.hidden=true; crumbs.textContent='Quadratique'; quadResult.className='msg'; quadResult.textContent='Prêt à calculer.'; if(quadInputs.a) quadInputs.a.focus(); });
+        $('back-home-quad').addEventListener('click', ()=>{ quadratique.hidden=true; home.hidden=false; crumbs.textContent='Accueil'; });
         $('open-pratique').addEventListener('click', ()=>{ chimie.hidden=true; fgHub.hidden=false; crumbs.textContent='Pratique des groupes fonctionnels'; updateBestHome(); });
         $('open-prefixes').addEventListener('click', ()=>{ chimie.hidden=true; prefixes.hidden=false; crumbs.textContent='Préfixes grecs'; resetPrefixes(); renderPrefix(); });
         $('back-prefixes').addEventListener('click', ()=>{ prefixes.hidden=true; chimie.hidden=false; crumbs.textContent='Chimie organique'; });
@@ -959,6 +1013,34 @@
         $('priority-help').addEventListener('click', ()=>{
           alert('Place les groupes du plus prioritaire au moins prioritaire puis vérifie.');
         });
+
+       function evaluateQuadratique(){
+          const a=parseInputNumber(quadInputs.a);
+          const b=parseInputNumber(quadInputs.b);
+          const c=parseInputNumber(quadInputs.c);
+          const x=parseInputNumber(quadInputs.x);
+          if([a,b,c,x].some(v=>v===null)){
+            quadResult.className='msg bad';
+            quadResult.textContent='Saisis des nombres valides pour a, b, c et x.';
+            return;
+          }
+          const fx = a*x*x + b*x + c;
+          const deriv = 2*a*x + b;
+          const delta = b*b - 4*a*c;
+          const sommetX = a!==0 ? -b/(2*a) : null;
+          const sommetY = sommetX!==null ? (a*sommetX*sommetX + b*sommetX + c) : null;
+          quadResult.className='msg ok';
+          let res = `f(${fmtNum(x)}) = ${fmtNum(fx)}`;
+          res += ` — f'(${fmtNum(x)}) = ${fmtNum(deriv)}`;
+          res += ` — Δ = ${fmtNum(delta)}`;
+          if(sommetX!==null) res += ` — Sommet : (${fmtNum(sommetX)} ; ${fmtNum(sommetY)})`;
+          quadResult.textContent = res;
+        }
+
+        if(quadForm){
+          quadForm.addEventListener('submit', (e)=>{ e.preventDefault(); evaluateQuadratique(); });
+        }
+
 
       const workspace = $('workspace');
       const trash = $('trash');
