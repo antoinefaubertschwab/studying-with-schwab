@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Will You Be My Valentine?</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+   <!-- Floating hearts background container -->
+  <div id="bg-hearts" aria-hidden="true"></div>
+
+   <!-- Main content card -->
+  <main id="card">
+    <!-- Initial question view -->
+    <section id="question-view">
+      <div class="heart-icon" aria-hidden="true">&hearts;</div>
+      <h1>Will you be my Valentine? <span class="inline-heart">&hearts;</span></h1>
+      <p class="subtitle">I have something important to ask you&hellip;</p>
+      <div class="buttons">
+        <button id="btn-yes">Yes</button>
+        <button id="btn-no">No</button>
+      </div>
+    </section>
+
+     <!-- Success view (shown after clicking Yes) -->
+    <section id="success-view" class="hidden">
+      <div class="heart-icon pulse" aria-hidden="true">&hearts;</div>
+      <h1>You just made my day.</h1>
+      <p class="love-message">I love you. <span class="inline-heart">&hearts;</span></p>
+    </section>
+  </main>
+
+   <!-- Confetti / hearts celebration canvas -->
+  <canvas id="celebration" aria-hidden="true"></canvas>
+
+   <script src="script.js"></script>
+</body>
+</html>
